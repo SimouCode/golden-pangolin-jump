@@ -47,5 +47,19 @@
   "june": "يونيو",
   "shopping": "تسوق",
   "additional_insights": "رؤى إضافية",
-  "additional_insights_placeholder": "ستتوفر هنا تحليلات وتقارير أكثر تفصيلاً."
+  "additional_insights_placeholder": "ستتوفر هنا تحليلات وتقارير أكثر تفصيلاً.",
+  "add_new_goal": "إضافة هدف جديد",
+  "goal_name": "اسم الهدف",
+  "goal_name_placeholder": "مثال: توفير لسيارة جديدة",
+  "target_amount": "المبلغ المستهدف",
+  "current_amount": "المبلغ الحالي",
+  "due_date": "تاريخ الاستحقاق",
+  "description_optional": "الوصف (اختياري)",
+  "goal_description_placeholder": "وصف موجز لهدفك",
+  "add_goal": "إضافة هدف",
+  "goal_saved_success": "تم حفظ الهدف بنجاح!",
+  "goal_save_error_fields": "الرجاء تعبئة اسم الهدف والمبلغ المستهدف الصحيح.",
+  "your_goals": "أهدافك",
+  "target": "المستهدف",
+  "current": "الحالي"
 }

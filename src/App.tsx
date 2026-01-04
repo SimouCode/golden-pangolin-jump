@@ -6,7 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
 import { LanguageProvider } from './contexts/LanguageContext';
-import { TransactionProvider } from './contexts/TransactionContext'; // Import TransactionProvider
+import { TransactionProvider } from './contexts/TransactionContext';
+import { GoalProvider } from './contexts/GoalContext'; // Import GoalProvider
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -25,18 +26,20 @@ const App = () => (
       <Sonner />
       <I18nextProvider i18n={i18n}>
         <LanguageProvider>
-          <TransactionProvider> {/* Wrap with TransactionProvider */}
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/transactions" element={<TransactionsPage />} />
-                <Route path="/transactions/add" element={<AddTransactionPage />} />
-                <Route path="/analytics" element={<AnalyticsPage />} />
-                <Route path="/goals" element={<GoalsPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
+          <TransactionProvider>
+            <GoalProvider> {/* Wrap with GoalProvider */}
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/transactions" element={<TransactionsPage />} />
+                  <Route path="/transactions/add" element={<AddTransactionPage />} />
+                  <Route path="/analytics" element={<AnalyticsPage />} />
+                  <Route path="/goals" element={<GoalsPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </GoalProvider>
           </TransactionProvider>
         </LanguageProvider>
       </I18nextProvider>

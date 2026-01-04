@@ -47,5 +47,19 @@
   "june": "June",
   "shopping": "Shopping",
   "additional_insights": "Additional Insights",
-  "additional_insights_placeholder": "More detailed analytics and reports will be available here."
+  "additional_insights_placeholder": "More detailed analytics and reports will be available here.",
+  "add_new_goal": "Add New Goal",
+  "goal_name": "Goal Name",
+  "goal_name_placeholder": "e.g., Save for a new car",
+  "target_amount": "Target Amount",
+  "current_amount": "Current Amount",
+  "due_date": "Due Date",
+  "description_optional": "Description (Optional)",
+  "goal_description_placeholder": "Briefly describe your goal",
+  "add_goal": "Add Goal",
+  "goal_saved_success": "Goal saved successfully!",
+  "goal_save_error_fields": "Please fill in the goal name and a valid target amount.",
+  "your_goals": "Your Goals",
+  "target": "Target",
+  "current": "Current"
 }
