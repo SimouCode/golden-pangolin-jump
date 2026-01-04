@@ -20,7 +20,7 @@
   "expense": "مصروف",
   "save": "حفظ",
   "transaction_saved_success": "تم حفظ المعاملة بنجاح!",
-  "transaction_save_error": "فشل حفظ المعاملة.",
+  "transaction_save_error_fields": "الرجاء تعبئة جميع الحقول المطلوبة (المبلغ، الفئة، التاريخ).",
   "current_balance": "الرصيد الحالي",
   "monthly_summary": "ملخص شهري",
   "top_spending_categories": "أعلى فئات الإنفاق",

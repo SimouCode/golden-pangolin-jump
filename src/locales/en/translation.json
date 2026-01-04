@@ -20,7 +20,7 @@
   "expense": "Expense",
   "save": "Save",
   "transaction_saved_success": "Transaction saved successfully!",
-  "transaction_save_error": "Failed to save transaction.",
+  "transaction_save_error_fields": "Please fill in all required fields (Amount, Category, Date).",
   "current_balance": "Current Balance",
   "monthly_summary": "Monthly Summary",
   "top_spending_categories": "Top Spending Categories",

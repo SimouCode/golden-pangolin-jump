@@ -13,10 +13,15 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { showSuccess, showError } from '@/utils/toast'; // Assuming these exist from previous steps
+import { showSuccess, showError } from '@/utils/toast';
+import { useTransactions } from '@/contexts/TransactionContext'; // Import useTransactions
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const AddTransactionPage = () => {
   const { t } = useTranslation();
+  const { addTransaction } = useTransactions(); // Use addTransaction from context
+  const navigate = useNavigate(); // Initialize useNavigate
+
   const [amount, setAmount] = useState<string>('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [category, setCategory] = useState<string>('');
@@ -25,12 +30,21 @@ const AddTransactionPage = () => {
   const [location, setLocation] = useState<string>('');
 
   const handleSaveTransaction = () => {
-    if (!amount || !category || !date) {
-      showError(t('transaction_save_error'));
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || !category || !date) {
+      showError(t('transaction_save_error_fields'));
       return;
     }
-    // In a real app, you'd send this data to a backend
-    console.log({ amount, type, category, date, note, location });
+
+    addTransaction({
+      amount: parsedAmount,
+      type,
+      category,
+      date,
+      note,
+      location,
+    });
+
     showSuccess(t('transaction_saved_success'));
     // Reset form
     setAmount('');
@@ -39,6 +53,7 @@ const AddTransactionPage = () => {
     setDate(new Date());
     setNote('');
     setLocation('');
+    navigate('/transactions'); // Navigate to transactions page after saving
   };
 
   return (
