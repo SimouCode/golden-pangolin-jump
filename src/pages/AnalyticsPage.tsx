@@ -6,28 +6,46 @@ import Layout from '@/components/Layout';
 import MonthlySummaryChart from '@/components/MonthlySummaryChart';
 import SpendingCategoriesChart from '@/components/SpendingCategoriesChart';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTransactions } from '@/contexts/TransactionContext';
+import { format } from 'date-fns';
 
 const AnalyticsPage = () => {
   const { t } = useTranslation();
+  const { transactions } = useTransactions();
 
-  // Dummy data for analytics charts
-  const monthlySummaryData = [
-    { name: t('january'), income: 3000, expenses: 1500 },
-    { name: t('february'), income: 3200, expenses: 1800 },
-    { name: t('march'), income: 2800, expenses: 1400 },
-    { name: t('april'), income: 3500, expenses: 2000 },
-    { name: t('may'), income: 3100, expenses: 1600 },
-    { name: t('june'), income: 3300, expenses: 1900 },
-  ];
+  // Calculate Monthly Summary Data
+  const monthlySummaryMap = transactions.reduce((acc, transaction) => {
+    const monthYear = format(transaction.date, 'MMM yyyy');
+    if (!acc[monthYear]) {
+      acc[monthYear] = { name: monthYear, income: 0, expenses: 0 };
+    }
+    if (transaction.type === 'income') {
+      acc[monthYear].income += transaction.amount;
+    } else {
+      acc[monthYear].expenses += transaction.amount;
+    }
+    return acc;
+  }, {} as Record<string, { name: string; income: number; expenses: number }>);
 
-  const spendingCategoriesData = [
-    { name: t('food'), value: 800 },
-    { name: t('transport'), value: 450 },
-    { name: t('entertainment'), value: 300 },
-    { name: t('utilities'), value: 250 },
-    { name: t('rent'), value: 1200 },
-    { name: t('shopping'), value: 600 },
-  ];
+  const monthlySummaryData = Object.values(monthlySummaryMap).sort((a, b) => {
+    // Sort by date for chronological order
+    const dateA = new Date(a.name);
+    const dateB = new Date(b.name);
+    return dateA.getTime() - dateB.getTime();
+  });
+
+  // Calculate Spending Categories Data
+  const spendingCategoriesMap = transactions
+    .filter((t) => t.type === 'expense')
+    .reduce((acc, transaction) => {
+      acc[transaction.category] = (acc[transaction.category] || 0) + transaction.amount;
+      return acc;
+    }, {} as Record<string, number>);
+
+  const spendingCategoriesData = Object.entries(spendingCategoriesMap).map(([name, value]) => ({
+    name,
+    value,
+  }));
 
   return (
     <Layout>
