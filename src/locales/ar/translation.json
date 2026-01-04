@@ -25,5 +25,11 @@
   "monthly_summary": "ملخص شهري",
   "top_spending_categories": "أعلى فئات الإنفاق",
   "add_new_transaction": "إضافة معاملة جديدة",
-  "pick_a_date": "اختر تاريخًا"
+  "pick_a_date": "اختر تاريخًا",
+  "transactions_page_description": "عرض وإدارة جميع معاملاتك المالية.",
+  "no_transactions_yet": "لم يتم تسجيل أي معاملات بعد. أضف أول معاملة لك!",
+  "analytics_page_description": "احصل على رؤى حول أنماط إنفاقك ودخلك.",
+  "analytics_content_placeholder": "ستظهر الرسوم البيانية هنا.",
+  "goals_page_description": "حدد وتتبع أهدافك المالية.",
+  "no_goals_yet": "لم يتم تحديد أي أهداف مالية بعد. ابدأ في التخطيط لمستقبلك!"
 }

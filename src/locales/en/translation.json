@@ -25,5 +25,11 @@
   "monthly_summary": "Monthly Summary",
   "top_spending_categories": "Top Spending Categories",
   "add_new_transaction": "Add New Transaction",
-  "pick_a_date": "Pick a date"
+  "pick_a_date": "Pick a date",
+  "transactions_page_description": "View and manage all your financial transactions.",
+  "no_transactions_yet": "No transactions recorded yet. Add your first one!",
+  "analytics_page_description": "Gain insights into your spending and income patterns.",
+  "analytics_content_placeholder": "Charts and graphs will appear here.",
+  "goals_page_description": "Set and track your financial goals.",
+  "no_goals_yet": "No financial goals set yet. Start planning your future!"
 }
