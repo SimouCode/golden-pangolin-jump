@@ -102,5 +102,12 @@
   "toggle_theme": "تبديل الثيم",
   "light_theme": "فاتح",
   "dark_theme": "داكن",
-  "system_theme": "النظام"
+  "system_theme": "النظام",
+  "filter_by_category": "تصفية حسب الفئة",
+  "all_categories": "جميع الفئات",
+  "filter_by_type": "تصفية حسب النوع",
+  "all_types": "جميع الأنواع",
+  "pick_a_date_range": "اختر نطاق تاريخ",
+  "clear_filters": "مسح الفلاتر",
+  "no_transactions_found": "لم يتم العثور على معاملات مطابقة للمعايير الخاصة بك."
 }
