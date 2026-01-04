@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface Transaction {
   id: string;
@@ -22,7 +22,27 @@ interface TransactionContextType {
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined);
 
 export const TransactionProvider = ({ children }: { children: ReactNode }) => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    // Load from localStorage on initial render
+    if (typeof window !== 'undefined') {
+      const savedTransactions = localStorage.getItem('transactions');
+      if (savedTransactions) {
+        // Parse dates back into Date objects
+        return JSON.parse(savedTransactions).map((t: any) => ({
+          ...t,
+          date: new Date(t.date),
+        }));
+      }
+    }
+    return [];
+  });
+
+  // Save to localStorage whenever transactions change
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('transactions', JSON.stringify(transactions));
+    }
+  }, [transactions]);
 
   const addTransaction = (newTransaction: Omit<Transaction, 'id'>) => {
     const transactionWithId: Transaction = {
