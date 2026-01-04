@@ -3,7 +3,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Home, Repeat, BarChart, Target, Settings } from 'lucide-react';
+import { Home, Repeat, BarChart, Target, Settings, Wallet } from 'lucide-react'; // Import Wallet icon
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -16,7 +16,8 @@ const Sidebar = () => {
     { name: t('transactions'), icon: Repeat, path: '/transactions' },
     { name: t('analytics'), icon: BarChart, path: '/analytics' },
     { name: t('goals'), icon: Target, path: '/goals' },
-    { name: t('settings'), icon: Settings, path: '/settings' }, // Added settings for future use
+    { name: t('budgets'), icon: Wallet, path: '/budgets' }, // Added Budgets link
+    { name: t('settings'), icon: Settings, path: '/settings' },
   ];
 
   return (
