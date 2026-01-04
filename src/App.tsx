@@ -10,9 +10,10 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import AddTransactionPage from "./pages/AddTransactionPage";
-import TransactionsPage from "./pages/TransactionsPage"; // Import new page
-import AnalyticsPage from "./pages/AnalyticsPage";     // Import new page
-import GoalsPage from "./pages/GoalsPage";             // Import new page
+import TransactionsPage from "./pages/TransactionsPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
+import GoalsPage from "./pages/GoalsPage";
+import SettingsPage from "./pages/SettingsPage"; // Import new page
 
 const queryClient = new QueryClient();
 
@@ -26,10 +27,11 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/transactions" element={<TransactionsPage />} /> {/* New route */}
+              <Route path="/transactions" element={<TransactionsPage />} />
               <Route path="/transactions/add" element={<AddTransactionPage />} />
-              <Route path="/analytics" element={<AnalyticsPage />} />       {/* New route */}
-              <Route path="/goals" element={<GoalsPage />} />             {/* New route */}
+              <Route path="/analytics" element={<AnalyticsPage />} />
+              <Route path="/goals" element={<GoalsPage />} />
+              <Route path="/settings" element={<SettingsPage />} /> {/* New route */}
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

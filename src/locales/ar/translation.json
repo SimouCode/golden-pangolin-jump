@@ -31,5 +31,6 @@
   "analytics_page_description": "احصل على رؤى حول أنماط إنفاقك ودخلك.",
   "analytics_content_placeholder": "ستظهر الرسوم البيانية هنا.",
   "goals_page_description": "حدد وتتبع أهدافك المالية.",
-  "no_goals_yet": "لم يتم تحديد أي أهداف مالية بعد. ابدأ في التخطيط لمستقبلك!"
+  "no_goals_yet": "لم يتم تحديد أي أهداف مالية بعد. ابدأ في التخطيط لمستقبلك!",
+  "settings_page_description": "إدارة إعدادات تطبيقك."
 }

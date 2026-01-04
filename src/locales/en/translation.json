@@ -31,5 +31,6 @@
   "analytics_page_description": "Gain insights into your spending and income patterns.",
   "analytics_content_placeholder": "Charts and graphs will appear here.",
   "goals_page_description": "Set and track your financial goals.",
-  "no_goals_yet": "No financial goals set yet. Start planning your future!"
+  "no_goals_yet": "No financial goals set yet. Start planning your future!",
+  "settings_page_description": "Manage your application settings."
 }
