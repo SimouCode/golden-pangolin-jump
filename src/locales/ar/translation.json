@@ -38,5 +38,14 @@
   "transport": "مواصلات",
   "entertainment": "ترفيه",
   "utilities": "فواتير",
-  "rent": "إيجار"
+  "rent": "إيجار",
+  "january": "يناير",
+  "february": "فبراير",
+  "march": "مارس",
+  "april": "أبريل",
+  "may": "مايو",
+  "june": "يونيو",
+  "shopping": "تسوق",
+  "additional_insights": "رؤى إضافية",
+  "additional_insights_placeholder": "ستتوفر هنا تحليلات وتقارير أكثر تفصيلاً."
 }

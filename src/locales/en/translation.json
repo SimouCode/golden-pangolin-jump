@@ -38,5 +38,14 @@
   "transport": "Transport",
   "entertainment": "Entertainment",
   "utilities": "Utilities",
-  "rent": "Rent"
+  "rent": "Rent",
+  "january": "January",
+  "february": "February",
+  "march": "March",
+  "april": "April",
+  "may": "May",
+  "june": "June",
+  "shopping": "Shopping",
+  "additional_insights": "Additional Insights",
+  "additional_insights_placeholder": "More detailed analytics and reports will be available here."
 }
