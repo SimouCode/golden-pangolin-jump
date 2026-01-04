@@ -3,7 +3,7 @@
 import React, { ReactNode } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Header from './Header';
-import BottomNavigation from './BottomNavigation';
+import BottomNavigation from './BottomNavigation'; // Import BottomNavigation
 import { MadeWithDyad } from './made-with-dyad';
 
 interface LayoutProps {
@@ -19,7 +19,7 @@ const Layout = ({ children }: LayoutProps) => {
       <main className="flex-1 container mx-auto p-4 pb-20 md:pb-4"> {/* Added pb-20 for mobile bottom nav */}
         {children}
       </main>
-      <BottomNavigation />
+      <BottomNavigation /> {/* Render BottomNavigation */}
       <MadeWithDyad />
     </div>
   );
