@@ -32,5 +32,11 @@
   "analytics_content_placeholder": "Charts and graphs will appear here.",
   "goals_page_description": "Set and track your financial goals.",
   "no_goals_yet": "No financial goals set yet. Start planning your future!",
-  "settings_page_description": "Manage your application settings."
+  "settings_page_description": "Manage your application settings.",
+  "current_month": "Current Month",
+  "food": "Food",
+  "transport": "Transport",
+  "entertainment": "Entertainment",
+  "utilities": "Utilities",
+  "rent": "Rent"
 }

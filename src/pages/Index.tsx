@@ -7,9 +7,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import MonthlySummaryChart from '@/components/MonthlySummaryChart'; // Import new chart
+import SpendingCategoriesChart from '@/components/SpendingCategoriesChart'; // Import new chart
 
 const Index = () => {
   const { t } = useTranslation();
+
+  // Dummy data for charts
+  const monthlySummaryData = [
+    { name: t('current_month'), income: 2500, expenses: 1265.44 },
+  ];
+
+  const spendingCategoriesData = [
+    { name: t('food'), value: 400 },
+    { name: t('transport'), value: 250 },
+    { name: t('entertainment'), value: 150 },
+    { name: t('utilities'), value: 100 },
+    { name: t('rent'), value: 600 },
+  ];
 
   return (
     <Layout>
@@ -28,47 +43,11 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        {/* Monthly Summary Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('monthly_summary')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Income</p>
-                <p className="text-lg font-semibold text-green-600">$2,500.00</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Expenses</p>
-                <p className="text-lg font-semibold text-red-600">$1,265.44</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Monthly Summary Chart */}
+        <MonthlySummaryChart data={monthlySummaryData} />
 
-        {/* Top Spending Categories Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('top_spending_categories')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              <li className="flex justify-between items-center">
-                <span>Food</span>
-                <span className="font-medium text-red-500">-$400.00</span>
-              </li>
-              <li className="flex justify-between items-center">
-                <span>Transport</span>
-                <span className="font-medium text-red-500">-$250.00</span>
-              </li>
-              <li className="flex justify-between items-center">
-                <span>Entertainment</span>
-                <span className="font-medium text-red-500">-$150.00</span>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
+        {/* Top Spending Categories Chart */}
+        <SpendingCategoriesChart data={spendingCategoriesData} />
 
         {/* Add New Transaction Button */}
         <div className="fixed bottom-20 right-4 md:static md:text-center">

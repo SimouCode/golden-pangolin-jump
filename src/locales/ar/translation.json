@@ -32,5 +32,11 @@
   "analytics_content_placeholder": "ستظهر الرسوم البيانية هنا.",
   "goals_page_description": "حدد وتتبع أهدافك المالية.",
   "no_goals_yet": "لم يتم تحديد أي أهداف مالية بعد. ابدأ في التخطيط لمستقبلك!",
-  "settings_page_description": "إدارة إعدادات تطبيقك."
+  "settings_page_description": "إدارة إعدادات تطبيقك.",
+  "current_month": "الشهر الحالي",
+  "food": "طعام",
+  "transport": "مواصلات",
+  "entertainment": "ترفيه",
+  "utilities": "فواتير",
+  "rent": "إيجار"
 }
