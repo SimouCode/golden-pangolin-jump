@@ -15,6 +15,7 @@ interface GoalContextType {
   goals: Goal[];
   addGoal: (goal: Omit<Goal, 'id'>) => void;
   updateGoal: (goal: Goal) => void;
+  deleteGoal: (id: string) => void; // Added deleteGoal
 }
 
 const GoalContext = createContext<GoalContextType | undefined>(undefined);
@@ -36,8 +37,12 @@ export const GoalProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
+  const deleteGoal = (id: string) => {
+    setGoals((prevGoals) => prevGoals.filter((goal) => goal.id !== id));
+  };
+
   return (
-    <GoalContext.Provider value={{ goals, addGoal, updateGoal }}>
+    <GoalContext.Provider value={{ goals, addGoal, updateGoal, deleteGoal }}>
       {children}
     </GoalContext.Provider>
   );

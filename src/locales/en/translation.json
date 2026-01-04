@@ -72,5 +72,12 @@
   "transaction_deleted_success": "Transaction deleted successfully!",
   "edit_transaction": "Edit Transaction",
   "update": "Update",
-  "transaction_updated_success": "Transaction updated successfully!"
+  "transaction_updated_success": "Transaction updated successfully!",
+  "edit_goal": "Edit Goal",
+  "goal_updated_success": "Goal updated successfully!",
+  "goal_deleted_success": "Goal deleted successfully!",
+  "goal_delete_confirm": "Are you sure you want to delete this goal? This action cannot be undone.",
+  "update_current_amount": "Update Current Amount",
+  "invalid_amount": "Please enter a valid amount.",
+  "goal_current_amount_updated_success": "Goal current amount updated successfully!"
 }

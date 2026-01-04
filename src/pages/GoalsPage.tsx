@@ -9,23 +9,39 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, PlusCircle } from 'lucide-react';
+import { CalendarIcon, PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { showSuccess, showError } from '@/utils/toast';
-import { useGoals } from '@/contexts/GoalContext';
+import { useGoals, Goal } from '@/contexts/GoalContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import EditGoalDialog from '@/components/EditGoalDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const GoalsPage = () => {
   const { t } = useTranslation();
-  const { goals, addGoal } = useGoals();
+  const { goals, addGoal, updateGoal, deleteGoal } = useGoals();
 
   const [goalName, setGoalName] = useState<string>('');
   const [targetAmount, setTargetAmount] = useState<string>('');
   const [currentAmount, setCurrentAmount] = useState<string>('0');
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [description, setDescription] = useState<string>('');
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
+  const [currentAmountInputs, setCurrentAmountInputs] = useState<Record<string, string>>({});
 
   const handleAddGoal = () => {
     const parsedTargetAmount = parseFloat(targetAmount);
@@ -51,6 +67,36 @@ const GoalsPage = () => {
     setCurrentAmount('0');
     setDueDate(undefined);
     setDescription('');
+  };
+
+  const handleDeleteGoal = (id: string) => {
+    deleteGoal(id);
+    showSuccess(t('goal_deleted_success'));
+  };
+
+  const handleEditClick = (goal: Goal) => {
+    setSelectedGoal(goal);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleCurrentAmountInputChange = (goalId: string, value: string) => {
+    setCurrentAmountInputs((prev) => ({ ...prev, [goalId]: value }));
+  };
+
+  const handleUpdateCurrentAmount = (goal: Goal) => {
+    const inputAmount = parseFloat(currentAmountInputs[goal.id] || '0');
+    if (isNaN(inputAmount) || inputAmount < 0) {
+      showError(t('invalid_amount'));
+      return;
+    }
+
+    const updatedGoal: Goal = {
+      ...goal,
+      currentAmount: inputAmount,
+    };
+    updateGoal(updatedGoal);
+    showSuccess(t('goal_current_amount_updated_success'));
+    setCurrentAmountInputs((prev) => ({ ...prev, [goal.id]: '' })); // Clear input after update
   };
 
   return (
@@ -152,8 +198,34 @@ const GoalsPage = () => {
               const progress = (goal.currentAmount / goal.targetAmount) * 100;
               return (
                 <Card key={goal.id}>
-                  <CardHeader>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle>{goal.name}</CardTitle>
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEditClick(goal)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" size="sm">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>{t('confirm_delete')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {t('goal_delete_confirm')}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteGoal(goal.id)}>
+                              {t('delete')}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <p className="text-sm text-muted-foreground">
@@ -176,6 +248,19 @@ const GoalsPage = () => {
                       <Progress value={progress} className="w-full" />
                       <span className="text-sm font-medium">{progress.toFixed(0)}%</span>
                     </div>
+                    <div className="flex items-end space-x-2 mt-4">
+                      <div className="flex-1 space-y-2">
+                        <Label htmlFor={`current-amount-${goal.id}`}>{t('update_current_amount')}</Label>
+                        <Input
+                          id={`current-amount-${goal.id}`}
+                          type="number"
+                          placeholder="0.00"
+                          value={currentAmountInputs[goal.id] || ''}
+                          onChange={(e) => handleCurrentAmountInputChange(goal.id, e.target.value)}
+                        />
+                      </div>
+                      <Button onClick={() => handleUpdateCurrentAmount(goal)}>{t('update')}</Button>
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -183,6 +268,13 @@ const GoalsPage = () => {
           </div>
         )}
       </div>
+      {selectedGoal && (
+        <EditGoalDialog
+          isOpen={isEditDialogOpen}
+          onClose={() => setIsEditDialogOpen(false)}
+          goal={selectedGoal}
+        />
+      )}
     </Layout>
   );
 };

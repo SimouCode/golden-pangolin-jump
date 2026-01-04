@@ -72,5 +72,12 @@
   "transaction_deleted_success": "تم حذف المعاملة بنجاح!",
   "edit_transaction": "تعديل المعاملة",
   "update": "تحديث",
-  "transaction_updated_success": "تم تحديث المعاملة بنجاح!"
+  "transaction_updated_success": "تم تحديث المعاملة بنجاح!",
+  "edit_goal": "تعديل الهدف",
+  "goal_updated_success": "تم تحديث الهدف بنجاح!",
+  "goal_deleted_success": "تم حذف الهدف بنجاح!",
+  "goal_delete_confirm": "هل أنت متأكد أنك تريد حذف هذا الهدف؟ لا يمكن التراجع عن هذا الإجراء.",
+  "update_current_amount": "تحديث المبلغ الحالي",
+  "invalid_amount": "الرجاء إدخال مبلغ صالح.",
+  "goal_current_amount_updated_success": "تم تحديث المبلغ الحالي للهدف بنجاح!"
 }
