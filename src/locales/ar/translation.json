@@ -24,5 +24,6 @@
   "current_balance": "الرصيد الحالي",
   "monthly_summary": "ملخص شهري",
   "top_spending_categories": "أعلى فئات الإنفاق",
-  "add_new_transaction": "إضافة معاملة جديدة"
+  "add_new_transaction": "إضافة معاملة جديدة",
+  "pick_a_date": "اختر تاريخًا"
 }

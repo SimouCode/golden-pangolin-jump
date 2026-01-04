@@ -24,5 +24,6 @@
   "current_balance": "Current Balance",
   "monthly_summary": "Monthly Summary",
   "top_spending_categories": "Top Spending Categories",
-  "add_new_transaction": "Add New Transaction"
+  "add_new_transaction": "Add New Transaction",
+  "pick_a_date": "Pick a date"
 }
