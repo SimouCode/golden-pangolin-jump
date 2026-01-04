@@ -7,24 +7,58 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import MonthlySummaryChart from '@/components/MonthlySummaryChart'; // Import new chart
-import SpendingCategoriesChart from '@/components/SpendingCategoriesChart'; // Import new chart
+import MonthlySummaryChart from '@/components/MonthlySummaryChart';
+import SpendingCategoriesChart from '@/components/SpendingCategoriesChart';
+import { useTransactions } from '@/contexts/TransactionContext'; // Import useTransactions
+import { format } from 'date-fns';
 
 const Index = () => {
   const { t } = useTranslation();
+  const { transactions } = useTransactions();
 
-  // Dummy data for charts
+  // Calculate Current Balance
+  const currentBalance = transactions.reduce((acc, transaction) => {
+    return transaction.type === 'income' ? acc + transaction.amount : acc - transaction.amount;
+  }, 0);
+
+  // Calculate Monthly Summary Data for the current month
+  const currentMonth = new Date().getMonth();
+  const currentYear = new Date().getFullYear();
+
+  const monthlyIncome = transactions
+    .filter(
+      (t) =>
+        t.type === 'income' &&
+        t.date.getMonth() === currentMonth &&
+        t.date.getFullYear() === currentYear
+    )
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const monthlyExpenses = transactions
+    .filter(
+      (t) =>
+        t.type === 'expense' &&
+        t.date.getMonth() === currentMonth &&
+        t.date.getFullYear() === currentYear
+    )
+    .reduce((sum, t) => sum + t.amount, 0);
+
   const monthlySummaryData = [
-    { name: t('current_month'), income: 2500, expenses: 1265.44 },
+    { name: t('current_month'), income: monthlyIncome, expenses: monthlyExpenses },
   ];
 
-  const spendingCategoriesData = [
-    { name: t('food'), value: 400 },
-    { name: t('transport'), value: 250 },
-    { name: t('entertainment'), value: 150 },
-    { name: t('utilities'), value: 100 },
-    { name: t('rent'), value: 600 },
-  ];
+  // Calculate Spending Categories Data
+  const spendingCategoriesMap = transactions
+    .filter((t) => t.type === 'expense')
+    .reduce((acc, transaction) => {
+      acc[transaction.category] = (acc[transaction.category] || 0) + transaction.amount;
+      return acc;
+    }, {} as Record<string, number>);
+
+  const spendingCategoriesData = Object.entries(spendingCategoriesMap).map(([name, value]) => ({
+    name,
+    value,
+  }));
 
   return (
     <Layout>
@@ -36,10 +70,11 @@ const Index = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t('current_balance')}</CardTitle>
-            <span className="text-2xl font-bold">$1,234.56</span>
+            <span className="text-2xl font-bold">${currentBalance.toFixed(2)}</span>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+            {/* Placeholder for percentage change, could be calculated with more historical data */}
+            <p className="text-xs text-muted-foreground">{t('balance_info')}</p>
           </CardContent>
         </Card>
 

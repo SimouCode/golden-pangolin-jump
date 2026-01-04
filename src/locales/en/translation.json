@@ -61,5 +61,6 @@
   "goal_save_error_fields": "Please fill in the goal name and a valid target amount.",
   "your_goals": "Your Goals",
   "target": "Target",
-  "current": "Current"
+  "current": "Current",
+  "balance_info": "Based on your recorded transactions."
 }
