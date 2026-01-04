@@ -98,5 +98,9 @@
   "edit_budget": "تعديل الميزانية",
   "budget_updated_success": "تم تحديث الميزانية بنجاح!",
   "budget_deleted_success": "تم حذف الميزانية بنجاح!",
-  "budget_delete_confirm": "هل أنت متأكد أنك تريد حذف هذه الميزانية؟ لا يمكن التراجع عن هذا الإجراء."
+  "budget_delete_confirm": "هل أنت متأكد أنك تريد حذف هذه الميزانية؟ لا يمكن التراجع عن هذا الإجراء.",
+  "toggle_theme": "تبديل الثيم",
+  "light_theme": "فاتح",
+  "dark_theme": "داكن",
+  "system_theme": "النظام"
 }

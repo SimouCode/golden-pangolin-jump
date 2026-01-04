@@ -98,5 +98,9 @@
   "edit_budget": "Edit Budget",
   "budget_updated_success": "Budget updated successfully!",
   "budget_deleted_success": "Budget deleted successfully!",
-  "budget_delete_confirm": "Are you sure you want to delete this budget? This action cannot be undone."
+  "budget_delete_confirm": "Are you sure you want to delete this budget? This action cannot be undone.",
+  "toggle_theme": "Toggle theme",
+  "light_theme": "Light",
+  "dark_theme": "Dark",
+  "system_theme": "System"
 }
