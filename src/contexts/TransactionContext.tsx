@@ -15,6 +15,8 @@ export interface Transaction {
 interface TransactionContextType {
   transactions: Transaction[];
   addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
+  updateTransaction: (transaction: Transaction) => void;
+  deleteTransaction: (id: string) => void;
 }
 
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined);
@@ -30,8 +32,18 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
     setTransactions((prevTransactions) => [...prevTransactions, transactionWithId]);
   };
 
+  const updateTransaction = (updatedTransaction: Transaction) => {
+    setTransactions((prevTransactions) =>
+      prevTransactions.map((t) => (t.id === updatedTransaction.id ? updatedTransaction : t))
+    );
+  };
+
+  const deleteTransaction = (id: string) => {
+    setTransactions((prevTransactions) => prevTransactions.filter((t) => t.id !== id));
+  };
+
   return (
-    <TransactionContext.Provider value={{ transactions, addTransaction }}>
+    <TransactionContext.Provider value={{ transactions, addTransaction, updateTransaction, deleteTransaction }}>
       {children}
     </TransactionContext.Provider>
   );

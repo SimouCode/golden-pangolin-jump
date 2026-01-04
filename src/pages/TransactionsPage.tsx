@@ -1,12 +1,12 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useTransactions } from '@/contexts/TransactionContext'; // Import useTransactions
+import { useTransactions, Transaction } from '@/contexts/TransactionContext';
 import {
   Table,
   TableBody,
@@ -15,12 +15,38 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+import { showSuccess, showError } from '@/utils/toast';
+import EditTransactionDialog from '@/components/EditTransactionDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 const TransactionsPage = () => {
   const { t } = useTranslation();
-  const { transactions } = useTransactions(); // Get transactions from context
+  const { transactions, deleteTransaction } = useTransactions();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+
+  const handleDeleteTransaction = (id: string) => {
+    deleteTransaction(id);
+    showSuccess(t('transaction_deleted_success'));
+  };
+
+  const handleEditClick = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setIsEditDialogOpen(true);
+  };
 
   return (
     <Layout>
@@ -59,6 +85,7 @@ const TransactionsPage = () => {
                   <TableHead className="text-right">{t('amount')}</TableHead>
                   <TableHead>{t('note')}</TableHead>
                   <TableHead>{t('location')}</TableHead>
+                  <TableHead className="text-center">{t('actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -77,6 +104,32 @@ const TransactionsPage = () => {
                     </TableCell>
                     <TableCell>{transaction.note || '-'}</TableCell>
                     <TableCell>{transaction.location || '-'}</TableCell>
+                    <TableCell className="flex justify-center space-x-2">
+                      <Button variant="outline" size="sm" onClick={() => handleEditClick(transaction)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" size="sm">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>{t('confirm_delete')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {t('transaction_delete_confirm')}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteTransaction(transaction.id)}>
+                              {t('delete')}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -84,6 +137,13 @@ const TransactionsPage = () => {
           </div>
         )}
       </div>
+      {selectedTransaction && (
+        <EditTransactionDialog
+          isOpen={isEditDialogOpen}
+          onClose={() => setIsEditDialogOpen(false)}
+          transaction={selectedTransaction}
+        />
+      )}
     </Layout>
   );
 };

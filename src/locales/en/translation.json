@@ -62,5 +62,15 @@
   "your_goals": "Your Goals",
   "target": "Target",
   "current": "Current",
-  "balance_info": "Based on your recorded transactions."
+  "balance_info": "Based on your recorded transactions.",
+  "actions": "Actions",
+  "edit": "Edit",
+  "delete": "Delete",
+  "confirm_delete": "Confirm Deletion",
+  "transaction_delete_confirm": "Are you sure you want to delete this transaction? This action cannot be undone.",
+  "cancel": "Cancel",
+  "transaction_deleted_success": "Transaction deleted successfully!",
+  "edit_transaction": "Edit Transaction",
+  "update": "Update",
+  "transaction_updated_success": "Transaction updated successfully!"
 }

@@ -62,5 +62,15 @@
   "your_goals": "أهدافك",
   "target": "المستهدف",
   "current": "الحالي",
-  "balance_info": "بناءً على معاملاتك المسجلة."
+  "balance_info": "بناءً على معاملاتك المسجلة.",
+  "actions": "الإجراءات",
+  "edit": "تعديل",
+  "delete": "حذف",
+  "confirm_delete": "تأكيد الحذف",
+  "transaction_delete_confirm": "هل أنت متأكد أنك تريد حذف هذه المعاملة؟ لا يمكن التراجع عن هذا الإجراء.",
+  "cancel": "إلغاء",
+  "transaction_deleted_success": "تم حذف المعاملة بنجاح!",
+  "edit_transaction": "تعديل المعاملة",
+  "update": "تحديث",
+  "transaction_updated_success": "تم تحديث المعاملة بنجاح!"
 }
