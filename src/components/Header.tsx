@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useTranslation } => 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import LanguageSwitcher from './LanguageSwitcher';
 import ThemeToggle from './ThemeToggle';
@@ -36,9 +36,11 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur-sm">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-6 md:justify-end">
+      <div className="container flex h-16 items-center justify-between px-4 md:px-6">
+        {/* Page title visible only on small screens */}
         <h1 className="text-xl font-bold md:hidden">{currentPageTitle}</h1>
-        <div className="flex items-center space-x-4">
+        {/* Utility items always visible, aligned to end on medium and larger screens */}
+        <div className="flex items-center space-x-4 md:ml-auto">
           <LanguageSwitcher />
           <ThemeToggle />
         </div>
