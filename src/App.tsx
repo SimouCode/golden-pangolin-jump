@@ -21,6 +21,7 @@ import GoalsPage from "./pages/GoalsPage";
 import SettingsPage from "./pages/SettingsPage";
 import BudgetsPage from "./pages/BudgetsPage";
 import Login from "./pages/Login"; // Import Login page
+import CategoryManagementPage from "./pages/CategoryManagementPage"; // New import
 
 const queryClient = new QueryClient();
 
@@ -97,12 +98,19 @@ const AppContent = () => (
                       </ProtectedRoute>
                     }
                   />
-                  {/* IncomePage is removed, income is now a transaction type */}
                   <Route
                     path="/settings"
                     element={
                       <ProtectedRoute>
                         <SettingsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings/categories"
+                    element={
+                      <ProtectedRoute>
+                        <CategoryManagementPage />
                       </ProtectedRoute>
                     }
                   />
