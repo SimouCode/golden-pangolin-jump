@@ -185,16 +185,5 @@
   "logout": "تسجيل الخروج",
   "loading": "جار التحميل",
   "oops_page_not_found": "عذراً! الصفحة غير موجودة",
-  "return_to_home": "العودة إلى الصفحة الرئيسية",
-  "category_management": "إدارة الفئات",
-  "category_management_description": "إضافة، تعديل، أو حذف فئات الإنفاق والدخل الخاصة بك.",
-  "category_name": "اسم الفئة",
-  "category_name_placeholder": "مثال: بقالة، راتب",
-  "add_category": "إضافة فئة",
-  "your_categories": "فئاتك",
-  "no_categories_yet": "لم يتم تحديد أي فئات بعد. أضف أول فئة لك!",
-  "loading_categories": "جار تحميل الفئات...",
-  "edit_category": "تعديل الفئة",
-  "category_save_error_fields": "الرجاء توفير اسم ونوع الفئة.",
-  "category_delete_confirm": "هل أنت متأكد أنك تريد حذف هذه الفئة؟ ستتأثر جميع المعاملات والميزانيات المرتبطة بها أيضًا."
+  "return_to_home": "العودة إلى الصفحة الرئيسية"
 }
