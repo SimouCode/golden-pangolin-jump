@@ -52,7 +52,7 @@ const MonthlySummaryChart: React.FC<MonthlySummaryChartProps> = ({ data }) => {
             >
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" vertical={false} />
               <XAxis dataKey="name" stroke="hsl(var(--foreground))" tickLine={false} axisLine={false} />
-              <YAxis stroke="hsl(var(--foreground))" tickFormatter={(value) => formatCurrency(value, '', t('currency_locale'))} axisLine={false} />
+              <YAxis stroke="hsl(var(--foreground))" tickFormatter={(value) => formatCurrency(value, 'DZD', t('currency_locale'))} axisLine={false} />
               <Tooltip
                 content={<CustomTooltip t={t} />}
                 cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }}

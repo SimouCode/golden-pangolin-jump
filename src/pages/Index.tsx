@@ -79,7 +79,7 @@ const BudgetOverviewCard = () => {
         </p>
         {isOverBudget && (
           <p className="text-xs text-destructive mt-1">
-            {t('over_budget_warning', { amount: formatCurrency(totalSpent - totalBudgeted, '', t('currency_locale')) })}
+            {t('over_budget_warning', { amount: formatCurrency(totalSpent - totalBudgeted, 'DZD', t('currency_locale')) })}
           </p>
         )}
         {monthlyBudgets.length === 0 && (

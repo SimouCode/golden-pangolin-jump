@@ -122,7 +122,7 @@ const BudgetsPage = () => {
                 <Input
                   id="amount"
                   type="number"
-                  placeholder={formatCurrency(0, '', t('currency_locale'))}
+                  placeholder={formatCurrency(0, 'DZD', t('currency_locale'))}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                 />
@@ -211,7 +211,7 @@ const BudgetsPage = () => {
                     </div>
                     {isOverBudget && (
                       <p className="text-sm text-destructive mt-2">
-                        {t('over_budget_warning', { amount: formatCurrency(spent - budget.amount, '', t('currency_locale')) })}
+                        {t('over_budget_warning', { amount: formatCurrency(spent - budget.amount, 'DZD', t('currency_locale')) })}
                       </p>
                     )}
                   </CardContent>

@@ -85,7 +85,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ isOpen, o
             <Input
               id="amount"
               type="number"
-              placeholder={formatCurrency(0, '', t('currency_locale'))}
+              placeholder={formatCurrency(0, 'DZD', t('currency_locale'))}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
