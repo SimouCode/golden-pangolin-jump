@@ -117,5 +117,18 @@
   "total_income": "Total Income",
   "total_expenses": "Total Expenses",
   "net_savings": "Net Savings",
-  "summary_for_month": "Summary for {{month}}"
+  "summary_for_month": "Summary for {{month}}",
+  "smart_recommendations": "Smart Recommendations",
+  "tip": "Tip",
+  "recommendation_add_first_transaction": "Start by adding your first transaction to get personalized insights!",
+  "recommendation_great_savings": "Great job managing your finances! Your net savings are looking strong this month. Keep up the fantastic work!",
+  "recommendation_positive_savings": "You're building positive net savings this month! Every little bit counts, keep an eye on your spending to boost it further.",
+  "recommendation_high_expenses": "It looks like expenses are a bit high this month. Let's review your transactions and find ways to get back on track!",
+  "recommendation_over_budget": "You've gone over your {{category}} budget this month. Perhaps it's time to adjust or find alternatives?",
+  "recommendation_under_budget": "Excellent work staying well within your {{category}} budget this month! Consider allocating the surplus to savings or another goal.",
+  "recommendation_unused_budget": "You have an unused budget for {{category}}. Is this category still relevant, or could you reallocate these funds?",
+  "recommendation_goal_almost_reached": "You're so close to achieving your goal of '{{goalName}}'! Keep up the fantastic work, the finish line is in sight!",
+  "recommendation_goal_good_progress": "You're making great progress towards '{{goalName}}'! Your dedication is paying off.",
+  "recommendation_goal_start_strong": "Starting a new goal is exciting! Keep contributing to '{{goalName}}' to build momentum.",
+  "recommendation_general_positive": "You're doing a wonderful job managing your finances! Keep up the great work."
 }

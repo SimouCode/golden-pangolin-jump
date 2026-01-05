@@ -9,7 +9,8 @@ import { PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import MonthlySummaryChart from '@/components/MonthlySummaryChart';
 import SpendingCategoriesChart from '@/components/SpendingCategoriesChart';
-import FinancialSummaryCard from '@/components/FinancialSummaryCard'; // Import new component
+import FinancialSummaryCard from '@/components/FinancialSummaryCard';
+import SmartRecommendations from '@/components/SmartRecommendations'; // Import new component
 import { useTransactions } from '@/contexts/TransactionContext';
 import { format } from 'date-fns';
 import {
@@ -80,6 +81,9 @@ const Index = () => {
       <div className="space-y-6">
         <h2 className="text-3xl font-bold tracking-tight hidden md:block">{t('welcome')}</h2>
         <p className="text-muted-foreground hidden md:block">{t('description')}</p>
+
+        {/* Smart Recommendations */}
+        <SmartRecommendations />
 
         {/* Current Balance Card */}
         <Card>

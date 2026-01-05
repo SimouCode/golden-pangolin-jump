@@ -117,5 +117,18 @@
   "total_income": "إجمالي الدخل",
   "total_expenses": "إجمالي المصروفات",
   "net_savings": "صافي المدخرات",
-  "summary_for_month": "ملخص لشهر {{month}}"
+  "summary_for_month": "ملخص لشهر {{month}}",
+  "smart_recommendations": "توصيات ذكية",
+  "tip": "نصيحة",
+  "recommendation_add_first_transaction": "ابدأ بإضافة أول معاملة للحصول على رؤى مخصصة!",
+  "recommendation_great_savings": "عمل رائع في إدارة أموالك! مدخراتك الصافية تبدو قوية هذا الشهر. استمر في العمل الرائع!",
+  "recommendation_positive_savings": "أنت تبني مدخرات صافية إيجابية هذا الشهر! كل القليل يهم، راقب إنفاقك لزيادته أكثر.",
+  "recommendation_high_expenses": "يبدو أن النفقات مرتفعة بعض الشيء هذا الشهر. دعنا نراجع معاملاتك ونجد طرقًا للعودة إلى المسار الصحيح!",
+  "recommendation_over_budget": "لقد تجاوزت ميزانية {{category}} هذا الشهر. ربما حان الوقت للتعديل أو البحث عن بدائل؟",
+  "recommendation_under_budget": "عمل ممتاز في البقاء ضمن ميزانية {{category}} هذا الشهر! فكر في تخصيص الفائض للمدخرات أو هدف آخر.",
+  "recommendation_unused_budget": "لديك ميزانية غير مستخدمة لـ {{category}}. هل هذه الفئة لا تزال ذات صلة، أم يمكنك إعادة تخصيص هذه الأموال؟",
+  "recommendation_goal_almost_reached": "أنت قريب جدًا من تحقيق هدفك '{{goalName}}'! استمر في العمل الرائع، خط النهاية في الأفق!",
+  "recommendation_goal_good_progress": "أنت تحرز تقدمًا كبيرًا نحو '{{goalName}}'! تفانيك يؤتي ثماره.",
+  "recommendation_goal_start_strong": "بدء هدف جديد أمر مثير! استمر في المساهمة في '{{goalName}}' لبناء الزخم.",
+  "recommendation_general_positive": "أنت تقوم بعمل رائع في إدارة أموالك! استمر في العمل الجيد."
 }
