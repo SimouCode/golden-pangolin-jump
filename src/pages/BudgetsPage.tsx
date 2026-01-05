@@ -25,6 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useTransactions } from '@/contexts/TransactionContext'; // To calculate spent amount
+import { cn } from '@/lib/utils'; // Import cn
 
 const BudgetsPage = () => {
   const { t } = useTranslation();
