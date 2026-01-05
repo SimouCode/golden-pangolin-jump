@@ -185,5 +185,8 @@
   "logout": "تسجيل الخروج",
   "loading": "جار التحميل",
   "oops_page_not_found": "عذراً! الصفحة غير موجودة",
-  "return_to_home": "العودة إلى الصفحة الرئيسية"
+  "return_to_home": "العودة إلى الصفحة الرئيسية",
+  "error": "خطأ",
+  "supabase_config_error": "خطأ في إعداد Supabase",
+  "check_env_file": "يرجى التحقق من ملف .env والتأكد من تعيين VITE_SUPABASE_URL وVITE_SUPABASE_ANON_KEY بشكل صحيح."
 }

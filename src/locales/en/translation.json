@@ -185,5 +185,8 @@
   "logout": "Logout",
   "loading": "Loading",
   "oops_page_not_found": "Oops! Page not found",
-  "return_to_home": "Return to Home"
+  "return_to_home": "Return to Home",
+  "error": "Error",
+  "supabase_config_error": "Supabase configuration error",
+  "check_env_file": "Please check your .env file and ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set correctly."
 }
