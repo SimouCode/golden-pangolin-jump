@@ -18,7 +18,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { showSuccess, showError } from '@/utils/toast';
 import { Transaction, useTransactions } from '@/contexts/TransactionContext';
 
@@ -85,7 +85,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ isOpen, o
             <Input
               id="amount"
               type="number"
-              placeholder="0.00"
+              placeholder={formatCurrency(0, '', t('currency_locale'))}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
@@ -108,7 +108,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ isOpen, o
             <Label htmlFor="category">{t('category')}</Label>
             <Input
               id="category"
-              placeholder="e.g., Food, Salary"
+              placeholder={t('category_placeholder_transaction')}
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             />
@@ -144,7 +144,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ isOpen, o
             <Label htmlFor="note">{t('note')}</Label>
             <Textarea
               id="note"
-              placeholder={t('note')}
+              placeholder={t('note_placeholder_transaction')}
               value={note}
               onChange={(e) => setNote(e.target.value)}
             />
@@ -154,7 +154,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ isOpen, o
             <Label htmlFor="location">{t('location')}</Label>
             <Input
               id="location"
-              placeholder="e.g., Supermarket, Cafe"
+              placeholder={t('location_placeholder_transaction')}
               value={location}
               onChange={(e) => setLocation(e.target.value)}
             />

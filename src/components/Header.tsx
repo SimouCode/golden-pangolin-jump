@@ -25,6 +25,8 @@ const Header = () => {
         return t('goals');
       case '/budgets':
         return t('budgets');
+      case '/income': // New case for IncomePage
+        return t('income_tracking');
       case '/settings':
         return t('settings');
       default:

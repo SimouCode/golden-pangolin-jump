@@ -11,7 +11,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, PlusCircle, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { showSuccess, showError } from '@/utils/toast';
 import { useGoals, Goal } from '@/contexts/GoalContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -105,7 +105,7 @@ const GoalsPage = () => {
         <h2 className="text-2xl font-bold tracking-tight">{t('goals')}</h2>
         <p className="text-muted-foreground">{t('goals_page_description')}</p>
 
-        <Card>
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
             <CardTitle>{t('add_new_goal')}</CardTitle>
           </CardHeader>
@@ -126,7 +126,7 @@ const GoalsPage = () => {
                 <Input
                   id="targetAmount"
                   type="number"
-                  placeholder="0.00"
+                  placeholder={formatCurrency(0, '', t('currency_locale'))}
                   value={targetAmount}
                   onChange={(e) => setTargetAmount(e.target.value)}
                 />
@@ -137,7 +137,7 @@ const GoalsPage = () => {
                 <Input
                   id="currentAmount"
                   type="number"
-                  placeholder="0.00"
+                  placeholder={formatCurrency(0, '', t('currency_locale'))}
                   value={currentAmount}
                   onChange={(e) => setCurrentAmount(e.target.value)}
                 />
@@ -197,7 +197,7 @@ const GoalsPage = () => {
             {goals.map((goal) => {
               const progress = (goal.currentAmount / goal.targetAmount) * 100;
               return (
-                <Card key={goal.id}>
+                <Card key={goal.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle>{goal.name}</CardTitle>
                     <div className="flex space-x-2">
@@ -229,10 +229,10 @@ const GoalsPage = () => {
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      {t('target')}: ${goal.targetAmount.toFixed(2)}
+                      {t('target')}: {formatCurrency(goal.targetAmount)}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {t('current')}: ${goal.currentAmount.toFixed(2)}
+                      {t('current')}: {formatCurrency(goal.currentAmount)}
                     </p>
                     {goal.dueDate && (
                       <p className="text-sm text-muted-foreground">
@@ -254,7 +254,7 @@ const GoalsPage = () => {
                         <Input
                           id={`current-amount-${goal.id}`}
                           type="number"
-                          placeholder="0.00"
+                          placeholder={formatCurrency(0, '', t('currency_locale'))}
                           value={currentAmountInputs[goal.id] || ''}
                           onChange={(e) => handleCurrentAmountInputChange(goal.id, e.target.value)}
                         />

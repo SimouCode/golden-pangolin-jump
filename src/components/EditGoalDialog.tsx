@@ -17,7 +17,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { showSuccess, showError } from '@/utils/toast';
 import { Goal, useGoals } from '@/contexts/GoalContext';
 
@@ -51,7 +51,7 @@ const EditGoalDialog: React.FC<EditGoalDialogProps> = ({ isOpen, onClose, goal }
     const parsedTargetAmount = parseFloat(targetAmount);
 
     if (!goalName || isNaN(parsedTargetAmount) || parsedTargetAmount <= 0) {
-      showError(t('goal_save_error_fields')); // Reusing this for now, could make a specific one
+      showError(t('goal_save_error_fields'));
       return;
     }
 
@@ -89,7 +89,7 @@ const EditGoalDialog: React.FC<EditGoalDialogProps> = ({ isOpen, onClose, goal }
             <Input
               id="targetAmount"
               type="number"
-              placeholder="0.00"
+              placeholder={formatCurrency(0, '', t('currency_locale'))}
               value={targetAmount}
               onChange={(e) => setTargetAmount(e.target.value)}
             />

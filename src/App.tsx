@@ -9,7 +9,8 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { TransactionProvider } from './contexts/TransactionContext';
 import { GoalProvider } from './contexts/GoalContext';
 import { BudgetProvider } from './contexts/BudgetContext';
-import { ThemeProvider } from "next-themes"; // Import ThemeProvider
+import { IncomeProvider } from './contexts/IncomeContext'; // Import IncomeProvider
+import { ThemeProvider } from "next-themes";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -19,6 +20,7 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import GoalsPage from "./pages/GoalsPage";
 import SettingsPage from "./pages/SettingsPage";
 import BudgetsPage from "./pages/BudgetsPage";
+import IncomePage from "./pages/IncomePage"; // Import IncomePage
 
 const queryClient = new QueryClient();
 
@@ -32,20 +34,23 @@ const App = () => (
           <TransactionProvider>
             <GoalProvider>
               <BudgetProvider>
-                <ThemeProvider attribute="class" defaultTheme="system" enableSystem> {/* Wrap with ThemeProvider */}
-                  <BrowserRouter>
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/transactions" element={<TransactionsPage />} />
-                      <Route path="/transactions/add" element={<AddTransactionPage />} />
-                      <Route path="/analytics" element={<AnalyticsPage />} />
-                      <Route path="/goals" element={<GoalsPage />} />
-                      <Route path="/budgets" element={<BudgetsPage />} />
-                      <Route path="/settings" element={<SettingsPage />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </BrowserRouter>
-                </ThemeProvider>
+                <IncomeProvider> {/* Wrap with IncomeProvider */}
+                  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                    <BrowserRouter>
+                      <Routes>
+                        <Route path="/" element={<Index />} />
+                        <Route path="/transactions" element={<TransactionsPage />} />
+                        <Route path="/transactions/add" element={<AddTransactionPage />} />
+                        <Route path="/analytics" element={<AnalyticsPage />} />
+                        <Route path="/goals" element={<GoalsPage />} />
+                        <Route path="/budgets" element={<BudgetsPage />} />
+                        <Route path="/income" element={<IncomePage />} /> {/* Add IncomePage route */}
+                        <Route path="/settings" element={<SettingsPage />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </BrowserRouter>
+                  </ThemeProvider>
+                </IncomeProvider>
               </BudgetProvider>
             </GoalProvider>
           </TransactionProvider>

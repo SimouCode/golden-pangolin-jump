@@ -41,8 +41,9 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { DateRange } from 'react-day-picker';
+import { Card } from '@/components/ui/card'; // Import Card
 
 const TransactionsPage = () => {
   const { t } = useTranslation();
@@ -144,78 +145,80 @@ const TransactionsPage = () => {
         <p className="text-muted-foreground">{t('transactions_page_description')}</p>
 
         {/* Filters and Sort */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Select value={filterCategory} onValueChange={setFilterCategory}>
-            <SelectTrigger>
-              <SelectValue placeholder={t('filter_by_category')} />
-            </SelectTrigger>
-            <SelectContent>
-              {uniqueCategories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category === 'all' ? t('all_categories') : category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <Card className="p-4 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Select value={filterCategory} onValueChange={setFilterCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder={t('filter_by_category')} />
+              </SelectTrigger>
+              <SelectContent>
+                {uniqueCategories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category === 'all' ? t('all_categories') : category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Select value={filterType} onValueChange={(value: 'all' | 'income' | 'expense') => setFilterType(value)}>
-            <SelectTrigger>
-              <SelectValue placeholder={t('filter_by_type')} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t('all_types')}</SelectItem>
-              <SelectItem value="income">{t('income')}</SelectItem>
-              <SelectItem value="expense">{t('expense')}</SelectItem>
-            </SelectContent>
-          </Select>
+            <Select value={filterType} onValueChange={(value: 'all' | 'income' | 'expense') => setFilterType(value)}>
+              <SelectTrigger>
+                <SelectValue placeholder={t('filter_by_type')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('all_types')}</SelectItem>
+                <SelectItem value="income">{t('income')}</SelectItem>
+                <SelectItem value="expense">{t('expense')}</SelectItem>
+              </SelectContent>
+            </Select>
 
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                id="date"
-                variant={"outline"}
-                className={cn(
-                  "w-full justify-start text-left font-normal",
-                  !dateRange?.from && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {dateRange?.from ? (
-                  dateRange.to ? (
-                    <>
-                      {format(dateRange.from, "LLL dd, y")} -{" "}
-                      {format(dateRange.to, "LLL dd, y")}
-                    </>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant={"outline"}
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !dateRange?.from && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                        {format(dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y")
+                    )
                   ) : (
-                    format(dateRange.from, "LLL dd, y")
-                  )
-                ) : (
-                  <span>{t('pick_a_date_range')}</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={dateRange?.from}
-                selected={dateRange}
-                onSelect={setDateRange}
-                numberOfMonths={2}
-              />
-            </PopoverContent>
-          </Popover>
+                    <span>{t('pick_a_date_range')}</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
 
-          <Button variant="outline" onClick={() => {
-            setFilterCategory('all');
-            setFilterType('all');
-            setDateRange(undefined);
-            setSortKey('date');
-            setSortDirection('desc');
-          }}>
-            {t('clear_filters')}
-          </Button>
-        </div>
+            <Button variant="outline" onClick={() => {
+              setFilterCategory('all');
+              setFilterType('all');
+              setDateRange(undefined);
+              setSortKey('date');
+              setSortDirection('desc');
+            }}>
+              {t('clear_filters')}
+            </Button>
+          </div>
+        </Card>
 
         {filteredAndSortedTransactions.length === 0 ? (
           <div className="border rounded-lg p-4 text-center text-muted-foreground">
@@ -230,7 +233,7 @@ const TransactionsPage = () => {
             </div>
           </div>
         ) : (
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border rounded-lg overflow-hidden shadow-lg">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -275,7 +278,7 @@ const TransactionsPage = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       {transaction.type === 'income' ? '+' : '-'}
-                      ${transaction.amount.toFixed(2)}
+                      {formatCurrency(transaction.amount)}
                     </TableCell>
                     <TableCell>{transaction.note || '-'}</TableCell>
                     <TableCell>{transaction.location || '-'}</TableCell>

@@ -24,18 +24,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useTransactions } from '@/contexts/TransactionContext'; // To calculate spent amount
-import { cn } from '@/lib/utils'; // Import cn
+import { useTransactions } from '@/contexts/TransactionContext';
+import { cn, formatCurrency } from '@/lib/utils';
 
 const BudgetsPage = () => {
   const { t } = useTranslation();
   const { budgets, addBudget, deleteBudget } = useBudgets();
-  const { transactions } = useTransactions(); // Get transactions to calculate spent amount
+  const { transactions } = useTransactions();
 
   const [budgetName, setBudgetName] = useState<string>('');
   const [category, setCategory] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
-  const [monthYear, setMonthYear] = useState<string>(format(new Date(), 'yyyy-MM')); // Default to current month
+  const [monthYear, setMonthYear] = useState<string>(format(new Date(), 'yyyy-MM'));
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
@@ -91,7 +91,7 @@ const BudgetsPage = () => {
         <h2 className="text-2xl font-bold tracking-tight">{t('budgets')}</h2>
         <p className="text-muted-foreground">{t('budgets_page_description')}</p>
 
-        <Card>
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
             <CardTitle>{t('add_new_budget')}</CardTitle>
           </CardHeader>
@@ -111,7 +111,7 @@ const BudgetsPage = () => {
                 <Label htmlFor="category">{t('category')}</Label>
                 <Input
                   id="category"
-                  placeholder="e.g., Food, Transport"
+                  placeholder={t('category_placeholder_budget')}
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 />
@@ -122,7 +122,7 @@ const BudgetsPage = () => {
                 <Input
                   id="amount"
                   type="number"
-                  placeholder="0.00"
+                  placeholder={formatCurrency(0, '', t('currency_locale'))}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                 />
@@ -157,9 +157,10 @@ const BudgetsPage = () => {
               const spent = calculateSpentAmount(budget);
               const progress = (spent / budget.amount) * 100;
               const isOverBudget = spent > budget.amount;
+              const remaining = budget.amount - spent;
 
               return (
-                <Card key={budget.id}>
+                <Card key={budget.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle>{budget.name} ({budget.monthYear})</CardTitle>
                     <div className="flex space-x-2">
@@ -194,10 +195,13 @@ const BudgetsPage = () => {
                       {t('category')}: {budget.category}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {t('budgeted')}: ${budget.amount.toFixed(2)}
+                      {t('budgeted')}: {formatCurrency(budget.amount)}
                     </p>
                     <p className={cn("text-sm font-medium", isOverBudget ? "text-destructive" : "text-foreground")}>
-                      {t('spent')}: ${spent.toFixed(2)}
+                      {t('spent')}: {formatCurrency(spent)}
+                    </p>
+                    <p className={cn("text-sm font-medium", remaining < 0 ? "text-destructive" : "text-green-600")}>
+                      {t('remaining')}: {formatCurrency(remaining)}
                     </p>
                     <div className="flex items-center space-x-2">
                       <Progress value={progress} className={cn("w-full", isOverBudget && "bg-destructive")} />
@@ -207,7 +211,7 @@ const BudgetsPage = () => {
                     </div>
                     {isOverBudget && (
                       <p className="text-sm text-destructive mt-2">
-                        {t('over_budget_warning', { amount: (spent - budget.amount).toFixed(2) })}
+                        {t('over_budget_warning', { amount: formatCurrency(spent - budget.amount, '', t('currency_locale')) })}
                       </p>
                     )}
                   </CardContent>

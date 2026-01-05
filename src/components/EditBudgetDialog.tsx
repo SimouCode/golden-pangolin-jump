@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { showSuccess, showError } from '@/utils/toast';
 import { Budget, useBudgets } from '@/contexts/BudgetContext';
+import { formatCurrency } from '@/lib/utils';
 
 interface EditBudgetDialogProps {
   isOpen: boolean;
@@ -83,7 +84,7 @@ const EditBudgetDialog: React.FC<EditBudgetDialogProps> = ({ isOpen, onClose, bu
             <Label htmlFor="category">{t('category')}</Label>
             <Input
               id="category"
-              placeholder="e.g., Food, Transport"
+              placeholder={t('category_placeholder_budget')}
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             />
@@ -94,7 +95,7 @@ const EditBudgetDialog: React.FC<EditBudgetDialogProps> = ({ isOpen, onClose, bu
             <Input
               id="amount"
               type="number"
-              placeholder="0.00"
+              placeholder={formatCurrency(0, '', t('currency_locale'))}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />

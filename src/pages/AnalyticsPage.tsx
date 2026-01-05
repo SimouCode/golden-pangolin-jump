@@ -53,13 +53,13 @@ const AnalyticsPage = () => {
         <h2 className="text-2xl font-bold tracking-tight">{t('analytics')}</h2>
         <p className="text-muted-foreground">{t('analytics_page_description')}</p>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2"> {/* Increased gap */}
           <MonthlySummaryChart data={monthlySummaryData} />
           <SpendingCategoriesChart data={spendingCategoriesData} />
         </div>
 
         {/* Placeholder for additional analytics insights */}
-        <Card>
+        <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
             <CardTitle>{t('additional_insights')}</CardTitle>
           </CardHeader>
