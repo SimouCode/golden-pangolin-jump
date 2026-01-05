@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -18,9 +18,10 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn, formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency, getUniqueCategories } from '@/lib/utils';
 import { showSuccess, showError } from '@/utils/toast';
 import { Transaction, useTransactions } from '@/contexts/TransactionContext';
+import { useBudgets } from '@/contexts/BudgetContext'; // Import useBudgets
 
 interface EditTransactionDialogProps {
   isOpen: boolean;
@@ -30,7 +31,8 @@ interface EditTransactionDialogProps {
 
 const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ isOpen, onClose, transaction }) => {
   const { t } = useTranslation();
-  const { updateTransaction } = useTransactions();
+  const { updateTransaction, transactions } = useTransactions();
+  const { budgets } = useBudgets(); // Use budgets to get categories
 
   const [amount, setAmount] = useState<string>('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
@@ -38,6 +40,10 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ isOpen, o
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [note, setNote] = useState<string>('');
   const [location, setLocation] = useState<string>('');
+
+  const uniqueCategories = useMemo(() => {
+    return getUniqueCategories(transactions, budgets);
+  }, [transactions, budgets]);
 
   useEffect(() => {
     if (transaction) {
@@ -85,7 +91,7 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ isOpen, o
             <Input
               id="amount"
               type="number"
-              placeholder={formatCurrency(0, 'DZD', t('currency_locale'))}
+              placeholder={formatCurrency(0, t('currency_locale'))}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
@@ -106,11 +112,27 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ isOpen, o
 
           <div className="space-y-2">
             <Label htmlFor="category">{t('category')}</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t('category_placeholder_transaction')} />
+              </SelectTrigger>
+              <SelectContent>
+                {uniqueCategories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+                {category && !uniqueCategories.includes(category) && (
+                  <SelectItem value={category}>{t('add_new_category')}: {category}</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
             <Input
-              id="category"
+              id="category-input"
               placeholder={t('category_placeholder_transaction')}
               value={category}
               onChange={(e) => setCategory(e.target.value)}
+              className="mt-2"
             />
           </div>
 

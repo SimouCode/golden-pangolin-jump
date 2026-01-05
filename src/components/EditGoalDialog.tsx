@@ -89,7 +89,7 @@ const EditGoalDialog: React.FC<EditGoalDialogProps> = ({ isOpen, onClose, goal }
             <Input
               id="targetAmount"
               type="number"
-              placeholder={formatCurrency(0, 'DZD', t('currency_locale'))}
+              placeholder={formatCurrency(0, t('currency_locale'))}
               value={targetAmount}
               onChange={(e) => setTargetAmount(e.target.value)}
             />

@@ -81,7 +81,7 @@ const SmartRecommendations = () => {
           .reduce((sum, t) => sum + t.amount, 0);
 
         if (spent > budget.amount * 1.1) { // 10% over budget
-          tips.push(t('recommendation_over_budget', { category: budget.category, amount: formatCurrency(spent - budget.amount, 'DZD', t('currency_locale')) }));
+          tips.push(t('recommendation_over_budget', { category: budget.category, amount: formatCurrency(spent - budget.amount, t('currency_locale')) }));
         } else if (spent < budget.amount * 0.8 && spent > 0) { // 20% under budget, but not 0
           tips.push(t('recommendation_under_budget', { category: budget.category }));
         } else if (spent === 0 && budget.amount > 0) {

@@ -57,17 +57,17 @@ const FinancialSummaryCard = () => {
         <div className="text-3xl font-bold mb-4">
           {t('net_savings')}:{' '}
           <span className={cn(netSavings >= 0 ? 'text-green-600' : 'text-red-600')}>
-            {formatCurrency(netSavings)}
+            {formatCurrency(netSavings, t('currency_locale'))}
           </span>
         </div>
         <div className="flex justify-between text-sm text-muted-foreground">
           <div className="flex items-center">
             <ArrowUp className="h-4 w-4 text-green-600 mr-1" />
-            {t('total_income')}: {formatCurrency(totalMonthlyIncome)}
+            {t('total_income')}: {formatCurrency(totalMonthlyIncome, t('currency_locale'))}
           </div>
           <div className="flex items-center">
             <ArrowDown className="h-4 w-4 text-red-600 mr-1" />
-            {t('total_expenses')}: {formatCurrency(monthlyExpenses)}
+            {t('total_expenses')}: {formatCurrency(monthlyExpenses, t('currency_locale'))}
           </div>
         </div>
         <p className="text-xs text-muted-foreground mt-2">

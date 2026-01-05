@@ -278,7 +278,7 @@ const TransactionsPage = () => {
                     </TableCell>
                     <TableCell className="text-right">
                       {transaction.type === 'income' ? '+' : '-'}
-                      {formatCurrency(transaction.amount)}
+                      {formatCurrency(transaction.amount, t('currency_locale'))}
                     </TableCell>
                     <TableCell>{transaction.note || '-'}</TableCell>
                     <TableCell>{transaction.location || '-'}</TableCell>

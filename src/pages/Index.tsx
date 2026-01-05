@@ -5,16 +5,17 @@ import { useTranslation } from 'react-i18next';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, TrendingUp, TrendingDown, Target, Wallet } from 'lucide-react'; // Added icons
+import { PlusCircle, TrendingUp, TrendingDown, Target, Wallet, DollarSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import MonthlySummaryChart from '@/components/MonthlySummaryChart';
 import SpendingCategoriesChart from '@/components/SpendingCategoriesChart';
 import FinancialSummaryCard from '@/components/FinancialSummaryCard';
 import SmartRecommendations from '@/components/SmartRecommendations';
+import CategoryBudgetProgressCard from '@/components/CategoryBudgetProgressCard'; // New import
 import { useTransactions } from '@/contexts/TransactionContext';
-import { useIncome } from '@/contexts/IncomeContext'; // Import useIncome
-import { useBudgets } from '@/contexts/BudgetContext'; // Import useBudgets
-import { useGoals } from '@/contexts/GoalContext'; // Import useGoals
+import { useIncome } from '@/contexts/IncomeContext';
+import { useBudgets } from '@/contexts/BudgetContext';
+import { useGoals } from '@/contexts/GoalContext';
 import { format } from 'date-fns';
 import {
   Table,
@@ -26,65 +27,39 @@ import {
 } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
 import { cn, formatCurrency } from '@/lib/utils';
-import { Progress } from '@/components/ui/progress'; // Import Progress
+import { Progress } from '@/components/ui/progress';
 
-// New component for Budget Overview
-const BudgetOverviewCard = () => {
+// New component for Current Balance
+const CurrentBalanceCard = () => {
   const { t } = useTranslation();
-  const { budgets } = useBudgets();
   const { transactions } = useTransactions();
+  const { incomeEntries } = useIncome();
 
-  const currentMonthYear = format(new Date(), 'yyyy-MM');
+  const totalIncome = useMemo(() => {
+    const transactionIncome = transactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
+    const otherIncome = incomeEntries.reduce((sum, i) => sum + i.amount, 0);
+    return transactionIncome + otherIncome;
+  }, [transactions, incomeEntries]);
 
-  const monthlyBudgets = budgets.filter(b => b.monthYear === currentMonthYear);
+  const totalExpenses = useMemo(() => {
+    return transactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+  }, [transactions]);
 
-  const totalBudgeted = monthlyBudgets.reduce((sum, b) => sum + b.amount, 0);
-  const totalSpent = monthlyBudgets.reduce((sum, budget) => {
-    const spent = transactions
-      .filter(
-        (t) =>
-          t.type === 'expense' &&
-          t.category.toLowerCase() === budget.category.toLowerCase() &&
-          format(t.date, 'yyyy-MM') === budget.monthYear
-      )
-      .reduce((s, t) => s + t.amount, 0);
-    return sum + spent;
-  }, 0);
-
-  const totalRemaining = totalBudgeted - totalSpent;
-  const progress = totalBudgeted > 0 ? (totalSpent / totalBudgeted) * 100 : 0;
-  const isOverBudget = totalSpent > totalBudgeted;
+  const currentBalance = totalIncome - totalExpenses;
 
   return (
-    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 col-span-full lg:col-span-2">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{t('monthly_budget_overview')}</CardTitle>
-        <Wallet className="h-4 w-4 text-muted-foreground" />
+        <CardTitle className="text-sm font-medium">{t('current_balance')}</CardTitle>
+        <DollarSign className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold mb-2">
-          {t('budgeted')}: {formatCurrency(totalBudgeted)}
-        </div>
-        <div className={cn("text-xl font-semibold mb-4", isOverBudget ? "text-destructive" : "text-foreground")}>
-          {t('spent')}: {formatCurrency(totalSpent)}
-        </div>
-        <div className="flex items-center space-x-2 mb-4">
-          <Progress value={progress} className={cn("w-full", isOverBudget && "bg-destructive")} />
-          <span className={cn("text-sm font-medium", isOverBudget && "text-destructive")}>
-            {progress.toFixed(0)}%
-          </span>
-        </div>
-        <p className={cn("text-sm", totalRemaining < 0 ? "text-destructive" : "text-green-600")}>
-          {t('remaining')}: {formatCurrency(totalRemaining)}
-        </p>
-        {isOverBudget && (
-          <p className="text-xs text-destructive mt-1">
-            {t('over_budget_warning', { amount: formatCurrency(totalSpent - totalBudgeted, 'DZD', t('currency_locale')) })}
-          </p>
-        )}
-        {monthlyBudgets.length === 0 && (
-          <p className="text-xs text-muted-foreground mt-2">{t('no_budgets_for_current_month')}</p>
-        )}
+        <div className="text-4xl font-bold">{formatCurrency(currentBalance, t('currency_locale'))}</div>
+        <p className="text-xs text-muted-foreground mt-1">{t('balance_info')}</p>
       </CardContent>
     </Card>
   );
@@ -131,7 +106,7 @@ const GoalsProgressCard = () => {
               </div>
               <Progress value={progress} className="h-2" />
               <p className="text-xs text-muted-foreground">
-                {formatCurrency(goal.currentAmount)} / {formatCurrency(goal.targetAmount)}
+                {formatCurrency(goal.currentAmount, t('currency_locale'))} / {formatCurrency(goal.targetAmount, t('currency_locale'))}
               </p>
             </div>
           );
@@ -150,24 +125,7 @@ const GoalsProgressCard = () => {
 const Index = () => {
   const { t } = useTranslation();
   const { transactions } = useTransactions();
-  const { incomeEntries } = useIncome(); // Use incomeEntries
-
-  // Calculate Current Balance
-  const totalIncome = useMemo(() => {
-    const transactionIncome = transactions
-      .filter(t => t.type === 'income')
-      .reduce((sum, t) => sum + t.amount, 0);
-    const otherIncome = incomeEntries.reduce((sum, i) => sum + i.amount, 0);
-    return transactionIncome + otherIncome;
-  }, [transactions, incomeEntries]);
-
-  const totalExpenses = useMemo(() => {
-    return transactions
-      .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0);
-  }, [transactions]);
-
-  const currentBalance = totalIncome - totalExpenses;
+  const { incomeEntries } = useIncome();
 
   // Calculate Monthly Summary Data for the current month
   const currentMonth = new Date().getMonth();
@@ -232,58 +190,43 @@ const Index = () => {
         {/* Smart Recommendations */}
         <SmartRecommendations />
 
-        {/* Top Row Cards */}
+        {/* Top Row Cards: Current Balance, Monthly Income, Monthly Expenses, Net Savings */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {/* Current Balance Card */}
-          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{t('current_balance')}</CardTitle>
-              <Wallet className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{formatCurrency(currentBalance)}</div>
-              <p className="text-xs text-muted-foreground mt-1">{t('balance_info')}</p>
-            </CardContent>
-          </Card>
-
-          {/* Monthly Income Card */}
+          <CurrentBalanceCard />
           <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{t('total_income')}</CardTitle>
               <TrendingUp className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-600">{formatCurrency(totalMonthlyIncome)}</div>
+              <div className="text-3xl font-bold text-green-600">{formatCurrency(totalMonthlyIncome, t('currency_locale'))}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 {t('summary_for_month', { month: format(new Date(), 'MMMM yyyy') })}
               </p>
             </CardContent>
           </Card>
 
-          {/* Monthly Expenses Card */}
           <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{t('total_expenses')}</CardTitle>
               <TrendingDown className="h-4 w-4 text-red-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-red-600">{formatCurrency(monthlyExpenses)}</div>
+              <div className="text-3xl font-bold text-red-600">{formatCurrency(monthlyExpenses, t('currency_locale'))}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 {t('summary_for_month', { month: format(new Date(), 'MMMM yyyy') })}
               </p>
             </CardContent>
           </Card>
-
-          {/* Financial Summary Card (Net Savings) */}
           <FinancialSummaryCard />
         </div>
 
-        {/* Middle Row Charts and Progress */}
+        {/* Middle Row: Charts and Progress Cards */}
         <div className="grid gap-6 md:grid-cols-2">
           <MonthlySummaryChart data={monthlySummaryData} />
           <SpendingCategoriesChart data={spendingCategoriesData} />
-          <BudgetOverviewCard /> {/* New Budget Overview Card */}
-          <GoalsProgressCard /> {/* New Goals Progress Card */}
+          <CategoryBudgetProgressCard /> {/* New Category Budget Progress Card */}
+          <GoalsProgressCard />
         </div>
 
         {/* Recent Transactions */}
@@ -320,7 +263,7 @@ const Index = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           {transaction.type === 'income' ? '+' : '-'}
-                          {formatCurrency(transaction.amount)}
+                          {formatCurrency(transaction.amount, t('currency_locale'))}
                         </TableCell>
                       </TableRow>
                     ))}

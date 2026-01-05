@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -12,15 +12,17 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn, formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency, getUniqueCategories } from '@/lib/utils';
 import { showSuccess, showError } from '@/utils/toast';
 import { useTransactions } from '@/contexts/TransactionContext';
+import { useBudgets } from '@/contexts/BudgetContext'; // Import useBudgets
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'; // Import Card components
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const AddTransactionPage = () => {
   const { t } = useTranslation();
-  const { addTransaction } = useTransactions();
+  const { addTransaction, transactions } = useTransactions();
+  const { budgets } = useBudgets(); // Use budgets to get categories
   const navigate = useNavigate();
 
   const [amount, setAmount] = useState<string>('');
@@ -29,6 +31,10 @@ const AddTransactionPage = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [note, setNote] = useState<string>('');
   const [location, setLocation] = useState<string>('');
+
+  const uniqueCategories = useMemo(() => {
+    return getUniqueCategories(transactions, budgets);
+  }, [transactions, budgets]);
 
   const handleSaveTransaction = () => {
     const parsedAmount = parseFloat(amount);
@@ -61,11 +67,11 @@ const AddTransactionPage = () => {
     <Layout>
       <div className="space-y-6">
         <h2 className="text-2xl font-bold tracking-tight">{t('add_transaction')}</h2>
-        <p className="text-muted-foreground">{t('add_transaction_page_description')}</p> {/* Added description */}
+        <p className="text-muted-foreground">{t('add_transaction_page_description')}</p>
 
         <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
-            <CardTitle>{t('transaction_details')}</CardTitle> {/* Added card title */}
+            <CardTitle>{t('transaction_details')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4">
@@ -74,7 +80,7 @@ const AddTransactionPage = () => {
                 <Input
                   id="amount"
                   type="number"
-                  placeholder={formatCurrency(0, 'DZD', t('currency_locale'))}
+                  placeholder={formatCurrency(0, t('currency_locale'))}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                 />
@@ -95,11 +101,29 @@ const AddTransactionPage = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="category">{t('category')}</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={t('category_placeholder_transaction')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {uniqueCategories.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                    {/* Option to add a new category if not in list */}
+                    {category && !uniqueCategories.includes(category) && (
+                      <SelectItem value={category}>{t('add_new_category')}: {category}</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+                {/* Allow typing a new category if not selected from dropdown */}
                 <Input
-                  id="category"
+                  id="category-input"
                   placeholder={t('category_placeholder_transaction')}
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
+                  className="mt-2"
                 />
               </div>
 

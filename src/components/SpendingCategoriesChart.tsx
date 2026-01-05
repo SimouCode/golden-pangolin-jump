@@ -20,7 +20,7 @@ const CustomTooltip = ({ active, payload, t }: any) => {
     return (
       <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-2 text-sm">
         <p className="font-bold mb-1">{payload[0].name}</p>
-        <p>{t('amount')}: {formatCurrency(payload[0].value)}</p>
+        <p>{t('amount')}: {formatCurrency(payload[0].value, t('currency_locale'))}</p>
       </div>
     );
   }

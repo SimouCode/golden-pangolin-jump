@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useTransactions } from '@/contexts/TransactionContext';
-import { cn, formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency, getUniqueCategories } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const BudgetsPage = () => {
   const { t } = useTranslation();
@@ -39,6 +40,10 @@ const BudgetsPage = () => {
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
+
+  const uniqueCategories = useMemo(() => {
+    return getUniqueCategories(transactions, budgets);
+  }, [transactions, budgets]);
 
   const handleAddBudget = () => {
     const parsedAmount = parseFloat(amount);
@@ -109,11 +114,27 @@ const BudgetsPage = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="category">{t('category')}</Label>
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={t('category_placeholder_budget')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {uniqueCategories.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                    {category && !uniqueCategories.includes(category) && (
+                      <SelectItem value={category}>{t('add_new_category')}: {category}</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
                 <Input
-                  id="category"
+                  id="category-input"
                   placeholder={t('category_placeholder_budget')}
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
+                  className="mt-2"
                 />
               </div>
 
@@ -122,7 +143,7 @@ const BudgetsPage = () => {
                 <Input
                   id="amount"
                   type="number"
-                  placeholder={formatCurrency(0, 'DZD', t('currency_locale'))}
+                  placeholder={formatCurrency(0, t('currency_locale'))}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                 />
@@ -195,13 +216,13 @@ const BudgetsPage = () => {
                       {t('category')}: {budget.category}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {t('budgeted')}: {formatCurrency(budget.amount)}
+                      {t('budgeted')}: {formatCurrency(budget.amount, t('currency_locale'))}
                     </p>
                     <p className={cn("text-sm font-medium", isOverBudget ? "text-destructive" : "text-foreground")}>
-                      {t('spent')}: {formatCurrency(spent)}
+                      {t('spent')}: {formatCurrency(spent, t('currency_locale'))}
                     </p>
                     <p className={cn("text-sm font-medium", remaining < 0 ? "text-destructive" : "text-green-600")}>
-                      {t('remaining')}: {formatCurrency(remaining)}
+                      {t('remaining')}: {formatCurrency(remaining, t('currency_locale'))}
                     </p>
                     <div className="flex items-center space-x-2">
                       <Progress value={progress} className={cn("w-full", isOverBudget && "bg-destructive")} />
@@ -211,7 +232,7 @@ const BudgetsPage = () => {
                     </div>
                     {isOverBudget && (
                       <p className="text-sm text-destructive mt-2">
-                        {t('over_budget_warning', { amount: formatCurrency(spent - budget.amount, 'DZD', t('currency_locale')) })}
+                        {t('over_budget_warning', { amount: formatCurrency(spent - budget.amount, t('currency_locale')) })}
                       </p>
                     )}
                   </CardContent>

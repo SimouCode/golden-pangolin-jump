@@ -156,5 +156,6 @@
   "no_active_goals": "لا توجد أهداف ادخار نشطة. حدد هدفًا جديدًا لبدء الادخار!",
   "set_new_goal": "حدد هدفًا جديدًا",
   "view_all_goals": "عرض جميع الأهداف",
-  "category_placeholder_budget": "مثال: بقالة، مواصلات"
+  "category_placeholder_budget": "مثال: بقالة، مواصلات",
+  "add_new_category": "إضافة فئة جديدة"
 }

@@ -126,7 +126,7 @@ const GoalsPage = () => {
                 <Input
                   id="targetAmount"
                   type="number"
-                  placeholder={formatCurrency(0, 'DZD', t('currency_locale'))}
+                  placeholder={formatCurrency(0, t('currency_locale'))}
                   value={targetAmount}
                   onChange={(e) => setTargetAmount(e.target.value)}
                 />
@@ -137,7 +137,7 @@ const GoalsPage = () => {
                 <Input
                   id="currentAmount"
                   type="number"
-                  placeholder={formatCurrency(0, 'DZD', t('currency_locale'))}
+                  placeholder={formatCurrency(0, t('currency_locale'))}
                   value={currentAmount}
                   onChange={(e) => setCurrentAmount(e.target.value)}
                 />
@@ -229,10 +229,10 @@ const GoalsPage = () => {
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      {t('target')}: {formatCurrency(goal.targetAmount)}
+                      {t('target')}: {formatCurrency(goal.targetAmount, t('currency_locale'))}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {t('current')}: {formatCurrency(goal.currentAmount)}
+                      {t('current')}: {formatCurrency(goal.currentAmount, t('currency_locale'))}
                     </p>
                     {goal.dueDate && (
                       <p className="text-sm text-muted-foreground">
@@ -254,7 +254,7 @@ const GoalsPage = () => {
                         <Input
                           id={`current-amount-${goal.id}`}
                           type="number"
-                          placeholder={formatCurrency(0, 'DZD', t('currency_locale'))}
+                          placeholder={formatCurrency(0, t('currency_locale'))}
                           value={currentAmountInputs[goal.id] || ''}
                           onChange={(e) => handleCurrentAmountInputChange(goal.id, e.target.value)}
                         />

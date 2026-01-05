@@ -101,7 +101,7 @@ const EditIncomeDialog: React.FC<EditIncomeDialogProps> = ({ isOpen, onClose, in
             <Input
               id="amount"
               type="number"
-              placeholder="0.00"
+              placeholder={formatCurrency(0, t('currency_locale'))}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
@@ -261,7 +261,7 @@ const IncomePage = () => {
                 <Input
                   id="amount"
                   type="number"
-                  placeholder="0.00"
+                  placeholder={formatCurrency(0, t('currency_locale'))}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                 />
@@ -359,7 +359,7 @@ const IncomePage = () => {
                     <TableCell>{format(income.date, 'PPP')}</TableCell>
                     <TableCell>{income.type}</TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(income.amount)}
+                      {formatCurrency(income.amount, t('currency_locale'))}
                     </TableCell>
                     <TableCell>{income.note || '-'}</TableCell>
                     <TableCell className="flex justify-center space-x-2">

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -15,7 +15,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { showSuccess, showError } from '@/utils/toast';
 import { Budget, useBudgets } from '@/contexts/BudgetContext';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getUniqueCategories } from '@/lib/utils';
+import { useTransactions } from '@/contexts/TransactionContext'; // Import useTransactions
 
 interface EditBudgetDialogProps {
   isOpen: boolean;
@@ -25,12 +26,17 @@ interface EditBudgetDialogProps {
 
 const EditBudgetDialog: React.FC<EditBudgetDialogProps> = ({ isOpen, onClose, budget }) => {
   const { t } = useTranslation();
-  const { updateBudget } = useBudgets();
+  const { updateBudget, budgets } = useBudgets();
+  const { transactions } = useTransactions(); // Use transactions to get categories
 
   const [budgetName, setBudgetName] = useState<string>('');
   const [category, setCategory] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
   const [monthYear, setMonthYear] = useState<string>('');
+
+  const uniqueCategories = useMemo(() => {
+    return getUniqueCategories(transactions, budgets);
+  }, [transactions, budgets]);
 
   useEffect(() => {
     if (budget) {
@@ -82,11 +88,27 @@ const EditBudgetDialog: React.FC<EditBudgetDialogProps> = ({ isOpen, onClose, bu
 
           <div className="space-y-2">
             <Label htmlFor="category">{t('category')}</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t('category_placeholder_budget')} />
+              </SelectTrigger>
+              <SelectContent>
+                {uniqueCategories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+                {category && !uniqueCategories.includes(category) && (
+                  <SelectItem value={category}>{t('add_new_category')}: {category}</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
             <Input
-              id="category"
+              id="category-input"
               placeholder={t('category_placeholder_budget')}
               value={category}
               onChange={(e) => setCategory(e.target.value)}
+              className="mt-2"
             />
           </div>
 
@@ -95,7 +117,7 @@ const EditBudgetDialog: React.FC<EditBudgetDialogProps> = ({ isOpen, onClose, bu
             <Input
               id="amount"
               type="number"
-              placeholder={formatCurrency(0, 'DZD', t('currency_locale'))}
+              placeholder={formatCurrency(0, t('currency_locale'))}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />

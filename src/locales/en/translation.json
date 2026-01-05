@@ -156,5 +156,6 @@
   "no_active_goals": "No active savings goals. Set a new goal to start saving!",
   "set_new_goal": "Set a New Goal",
   "view_all_goals": "View All Goals",
-  "category_placeholder_budget": "e.g., Groceries, Transport"
+  "category_placeholder_budget": "e.g., Groceries, Transport",
+  "add_new_category": "Add New Category"
 }
