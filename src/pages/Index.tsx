@@ -11,6 +11,15 @@ import MonthlySummaryChart from '@/components/MonthlySummaryChart';
 import SpendingCategoriesChart from '@/components/SpendingCategoriesChart';
 import { useTransactions } from '@/contexts/TransactionContext'; // Import useTransactions
 import { format } from 'date-fns';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from '@/components/ui/badge';
 
 const Index = () => {
   const { t } = useTranslation();
@@ -60,6 +69,11 @@ const Index = () => {
     value,
   }));
 
+  // Get recent transactions (e.g., last 5)
+  const recentTransactions = transactions
+    .sort((a, b) => b.date.getTime() - a.date.getTime()) // Sort by date descending
+    .slice(0, 5); // Take the top 5
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -83,6 +97,51 @@ const Index = () => {
 
         {/* Top Spending Categories Chart */}
         <SpendingCategoriesChart data={spendingCategoriesData} />
+
+        {/* Recent Transactions */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{t('recent_transactions')}</CardTitle>
+            <Button variant="link" asChild className="p-0 h-auto">
+              <Link to="/transactions">{t('view_all')}</Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {recentTransactions.length === 0 ? (
+              <p className="text-muted-foreground text-sm">{t('no_recent_transactions')}</p>
+            ) : (
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t('date')}</TableHead>
+                      <TableHead>{t('category')}</TableHead>
+                      <TableHead>{t('type')}</TableHead>
+                      <TableHead className="text-right">{t('amount')}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {recentTransactions.map((transaction) => (
+                      <TableRow key={transaction.id}>
+                        <TableCell>{format(transaction.date, 'MMM dd')}</TableCell>
+                        <TableCell>{transaction.category}</TableCell>
+                        <TableCell>
+                          <Badge variant={transaction.type === 'income' ? 'default' : 'destructive'}>
+                            {t(transaction.type)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {transaction.type === 'income' ? '+' : '-'}
+                          ${transaction.amount.toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Add New Transaction Button */}
         <div className="fixed bottom-20 right-4 md:static md:text-center">

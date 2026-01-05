@@ -109,5 +109,8 @@
   "all_types": "جميع الأنواع",
   "pick_a_date_range": "اختر نطاق تاريخ",
   "clear_filters": "مسح الفلاتر",
-  "no_transactions_found": "لم يتم العثور على معاملات مطابقة للمعايير الخاصة بك."
+  "no_transactions_found": "لم يتم العثور على معاملات مطابقة للمعايير الخاصة بك.",
+  "recent_transactions": "المعاملات الأخيرة",
+  "view_all": "عرض الكل",
+  "no_recent_transactions": "لا توجد معاملات حديثة لعرضها."
 }

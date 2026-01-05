@@ -109,5 +109,8 @@
   "all_types": "All Types",
   "pick_a_date_range": "Pick a date range",
   "clear_filters": "Clear Filters",
-  "no_transactions_found": "No transactions found matching your criteria."
+  "no_transactions_found": "No transactions found matching your criteria.",
+  "recent_transactions": "Recent Transactions",
+  "view_all": "View All",
+  "no_recent_transactions": "No recent transactions to display."
 }
