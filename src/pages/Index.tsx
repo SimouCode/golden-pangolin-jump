@@ -9,7 +9,8 @@ import { PlusCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import MonthlySummaryChart from '@/components/MonthlySummaryChart';
 import SpendingCategoriesChart from '@/components/SpendingCategoriesChart';
-import { useTransactions } from '@/contexts/TransactionContext'; // Import useTransactions
+import FinancialSummaryCard from '@/components/FinancialSummaryCard'; // Import new component
+import { useTransactions } from '@/contexts/TransactionContext';
 import { format } from 'date-fns';
 import {
   Table,
@@ -91,6 +92,9 @@ const Index = () => {
             <p className="text-xs text-muted-foreground">{t('balance_info')}</p>
           </CardContent>
         </Card>
+
+        {/* Financial Summary Card */}
+        <FinancialSummaryCard />
 
         {/* Monthly Summary Chart */}
         <MonthlySummaryChart data={monthlySummaryData} />

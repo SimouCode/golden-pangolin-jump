@@ -112,5 +112,10 @@
   "no_transactions_found": "لم يتم العثور على معاملات مطابقة للمعايير الخاصة بك.",
   "recent_transactions": "المعاملات الأخيرة",
   "view_all": "عرض الكل",
-  "no_recent_transactions": "لا توجد معاملات حديثة لعرضها."
+  "no_recent_transactions": "لا توجد معاملات حديثة لعرضها.",
+  "financial_summary": "الملخص المالي",
+  "total_income": "إجمالي الدخل",
+  "total_expenses": "إجمالي المصروفات",
+  "net_savings": "صافي المدخرات",
+  "summary_for_month": "ملخص لشهر {{month}}"
 }
