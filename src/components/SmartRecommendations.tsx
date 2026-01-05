@@ -8,7 +8,7 @@ import { Lightbulb } from 'lucide-react';
 import { useTransactions } from '@/contexts/TransactionContext';
 import { useBudgets } from '@/contexts/BudgetContext';
 import { useGoals } from '@/contexts/GoalContext';
-import { useIncome } from '@/contexts/IncomeContext'; // Import useIncome
+import { useCategories } from '@/hooks/use-categories'; // Import useCategories
 import { format } from 'date-fns';
 import { formatCurrency } from '@/lib/utils';
 
@@ -17,19 +17,19 @@ const SmartRecommendations = () => {
   const { transactions } = useTransactions();
   const { budgets } = useBudgets();
   const { goals } = useGoals();
-  const { incomeEntries } = useIncome(); // Use incomeEntries
+  const { categories } = useCategories();
 
   const recommendations = useMemo(() => {
     const tips: string[] = [];
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
-    const currentMonthYear = format(new Date(), 'yyyy-MM');
+    const currentMonthNum = currentMonth + 1; // Month is 1-indexed for budget table
 
     // --- Overall Financial Health ---
-    if (transactions.length === 0 && incomeEntries.length === 0) {
+    if (transactions.length === 0) {
       tips.push(t('recommendation_add_first_transaction'));
     } else {
-      const monthlyTransactionIncome = transactions
+      const totalMonthlyIncome = transactions
         .filter(
           (t) =>
             t.type === 'income' &&
@@ -37,16 +37,6 @@ const SmartRecommendations = () => {
             t.date.getFullYear() === currentYear
         )
         .reduce((sum, t) => sum + t.amount, 0);
-
-      const monthlyOtherIncome = incomeEntries
-        .filter(
-          (i) =>
-            i.date.getMonth() === currentMonth &&
-            i.date.getFullYear() === currentYear
-        )
-        .reduce((sum, i) => sum + i.amount, 0);
-
-      const totalMonthlyIncome = monthlyTransactionIncome + monthlyOtherIncome;
 
       const monthlyExpenses = transactions
         .filter(
@@ -70,45 +60,39 @@ const SmartRecommendations = () => {
 
     // --- Budget Performance ---
     budgets.forEach((budget) => {
-      if (budget.monthYear === currentMonthYear) {
-        const spent = transactions
-          .filter(
-            (t) =>
-              t.type === 'expense' &&
-              t.category.toLowerCase() === budget.category.toLowerCase() &&
-              format(t.date, 'yyyy-MM') === budget.monthYear
-          )
-          .reduce((sum, t) => sum + t.amount, 0);
+      if (budget.month === currentMonthNum && budget.year === currentYear) {
+        const categoryName = categories.find(cat => cat.id === budget.category_id)?.name || t('unknown_category');
+        const spent = budget.spent; // Spent is now directly from budget table
 
-        if (spent > budget.amount * 1.1) { // 10% over budget
-          tips.push(t('recommendation_over_budget', { category: budget.category, amount: formatCurrency(spent - budget.amount, t('currency_locale')) }));
-        } else if (spent < budget.amount * 0.8 && spent > 0) { // 20% under budget, but not 0
-          tips.push(t('recommendation_under_budget', { category: budget.category }));
-        } else if (spent === 0 && budget.amount > 0) {
-          tips.push(t('recommendation_unused_budget', { category: budget.category }));
+        if (spent > budget.monthly_limit * 1.1) { // 10% over budget
+          tips.push(t('recommendation_over_budget', { category: categoryName, amount: formatCurrency(spent - budget.monthly_limit, t('currency_locale')) }));
+        } else if (spent < budget.monthly_limit * 0.8 && spent > 0) { // 20% under budget, but not 0
+          tips.push(t('recommendation_under_budget', { category: categoryName }));
+        } else if (spent === 0 && budget.monthly_limit > 0) {
+          tips.push(t('recommendation_unused_budget', { category: categoryName }));
         }
       }
     });
 
     // --- Goal Progress ---
     goals.forEach((goal) => {
-      const progress = (goal.currentAmount / goal.targetAmount) * 100;
+      const progress = (goal.saved_amount / goal.target_amount) * 100;
       if (progress >= 90 && progress < 100) {
         tips.push(t('recommendation_goal_almost_reached', { goalName: goal.name }));
       } else if (progress >= 50 && progress < 90) {
         tips.push(t('recommendation_goal_good_progress', { goalName: goal.name }));
-      } else if (progress === 0 && goal.targetAmount > 0) {
+      } else if (progress === 0 && goal.target_amount > 0) {
         tips.push(t('recommendation_goal_start_strong', { goalName: goal.name }));
       }
     });
 
     // If no specific tips, provide a general positive one
-    if (tips.length === 0 && (transactions.length > 0 || incomeEntries.length > 0)) {
+    if (tips.length === 0 && transactions.length > 0) {
       tips.push(t('recommendation_general_positive'));
     }
 
     return tips;
-  }, [transactions, budgets, goals, incomeEntries, t]);
+  }, [transactions, budgets, goals, categories, t]);
 
   if (recommendations.length === 0) {
     return null; // Don't show the card if there are no recommendations

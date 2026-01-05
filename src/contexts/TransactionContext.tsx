@@ -1,69 +1,153 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useSession } from '@/contexts/SessionContext';
+import { useTranslation } from 'react-i18next';
+import { showError, showSuccess } from '@/utils/toast';
+import { format } from 'date-fns';
 
 export interface Transaction {
   id: string;
+  user_id: string;
+  category_id: string;
   amount: number;
   type: 'income' | 'expense';
-  category: string;
-  date: Date;
   note?: string;
-  location?: string;
+  date: Date;
+  created_at: string;
 }
 
 interface TransactionContextType {
   transactions: Transaction[];
-  addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
-  updateTransaction: (transaction: Transaction) => void;
-  deleteTransaction: (id: string) => void;
+  addTransaction: (transaction: Omit<Transaction, 'id' | 'user_id' | 'created_at'>) => Promise<Transaction | null>;
+  updateTransaction: (transaction: Omit<Transaction, 'user_id' | 'created_at'>) => Promise<Transaction | null>;
+  deleteTransaction: (id: string) => Promise<boolean>;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined);
 
 export const TransactionProvider = ({ children }: { children: ReactNode }) => {
-  const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    // Load from localStorage on initial render
-    if (typeof window !== 'undefined') {
-      const savedTransactions = localStorage.getItem('transactions');
-      if (savedTransactions) {
-        // Parse dates back into Date objects
-        return JSON.parse(savedTransactions).map((t: any) => ({
-          ...t,
-          date: new Date(t.date),
-        }));
-      }
-    }
-    return [];
-  });
+  const { user } = useSession();
+  const { t } = useTranslation();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Save to localStorage whenever transactions change
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('transactions', JSON.stringify(transactions));
+    if (!user) {
+      setTransactions([]);
+      setIsLoading(false);
+      return;
     }
-  }, [transactions]);
 
-  const addTransaction = (newTransaction: Omit<Transaction, 'id'>) => {
-    const transactionWithId: Transaction = {
-      ...newTransaction,
-      id: Date.now().toString(), // Simple unique ID generation
+    const fetchTransactions = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('date', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching transactions:', error);
+        setError(error.message);
+        showError(t('error_fetching_transactions'));
+      } else {
+        setTransactions(data ? data.map(t => ({ ...t, date: new Date(t.date) })) : []);
+        setError(null);
+      }
+      setIsLoading(false);
     };
-    setTransactions((prevTransactions) => [...prevTransactions, transactionWithId]);
+
+    fetchTransactions();
+
+    const channel = supabase
+      .channel('public:transactions')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions', filter: `user_id=eq.${user.id}` }, (payload) => {
+        fetchTransactions(); // Re-fetch transactions on any change
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, t]);
+
+  const addTransaction = async (newTransaction: Omit<Transaction, 'id' | 'user_id' | 'created_at'>) => {
+    if (!user) {
+      showError(t('error_not_authenticated'));
+      return null;
+    }
+    const { data, error } = await supabase
+      .from('transactions')
+      .insert({
+        ...newTransaction,
+        user_id: user.id,
+        date: format(newTransaction.date, 'yyyy-MM-dd'), // Format date for Supabase
+      })
+      .select();
+
+    if (error) {
+      console.error('Error adding transaction:', error);
+      showError(t('error_adding_transaction'));
+      return null;
+    }
+    showSuccess(t('transaction_saved_success'));
+    return data ? { ...data[0], date: new Date(data[0].date) } : null;
   };
 
-  const updateTransaction = (updatedTransaction: Transaction) => {
-    setTransactions((prevTransactions) =>
-      prevTransactions.map((t) => (t.id === updatedTransaction.id ? updatedTransaction : t))
-    );
+  const updateTransaction = async (updatedTransaction: Omit<Transaction, 'user_id' | 'created_at'>) => {
+    if (!user) {
+      showError(t('error_not_authenticated'));
+      return null;
+    }
+    const { data, error } = await supabase
+      .from('transactions')
+      .update({
+        category_id: updatedTransaction.category_id,
+        amount: updatedTransaction.amount,
+        type: updatedTransaction.type,
+        note: updatedTransaction.note,
+        date: format(updatedTransaction.date, 'yyyy-MM-dd'), // Format date for Supabase
+      })
+      .eq('id', updatedTransaction.id)
+      .eq('user_id', user.id)
+      .select();
+
+    if (error) {
+      console.error('Error updating transaction:', error);
+      showError(t('error_updating_transaction'));
+      return null;
+    }
+    showSuccess(t('transaction_updated_success'));
+    return data ? { ...data[0], date: new Date(data[0].date) } : null;
   };
 
-  const deleteTransaction = (id: string) => {
-    setTransactions((prevTransactions) => prevTransactions.filter((t) => t.id !== id));
+  const deleteTransaction = async (id: string) => {
+    if (!user) {
+      showError(t('error_not_authenticated'));
+      return false;
+    }
+    const { error } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error deleting transaction:', error);
+      showError(t('error_deleting_transaction'));
+      return false;
+    }
+    showSuccess(t('transaction_deleted_success'));
+    return true;
   };
 
   return (
-    <TransactionContext.Provider value={{ transactions, addTransaction, updateTransaction, deleteTransaction }}>
+    <TransactionContext.Provider value={{ transactions, addTransaction, updateTransaction, deleteTransaction, isLoading, error }}>
       {children}
     </TransactionContext.Provider>
   );

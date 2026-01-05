@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { PlusCircle, Edit, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTransactions, Transaction } from '@/contexts/TransactionContext';
+import { useCategories } from '@/hooks/use-categories'; // Import useCategories
 import {
   Table,
   TableBody,
@@ -43,11 +44,12 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
 import { DateRange } from 'react-day-picker';
-import { Card } from '@/components/ui/card'; // Import Card
+import { Card } from '@/components/ui/card';
 
 const TransactionsPage = () => {
   const { t } = useTranslation();
   const { transactions, deleteTransaction } = useTransactions();
+  const { categories } = useCategories();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
@@ -60,18 +62,21 @@ const TransactionsPage = () => {
   const [sortKey, setSortKey] = useState<keyof Transaction | null>('date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
 
-  const uniqueCategories = useMemo(() => {
-    const categories = new Set<string>();
-    transactions.forEach((t) => categories.add(t.category));
-    return ['all', ...Array.from(categories).sort()];
-  }, [transactions]);
+  const uniqueCategoryNames = useMemo(() => {
+    const names = new Set<string>();
+    categories.forEach((c) => names.add(c.name));
+    return ['all', ...Array.from(names).sort()];
+  }, [categories]);
 
   const filteredAndSortedTransactions = useMemo(() => {
     let filtered = transactions;
 
     // Apply category filter
     if (filterCategory !== 'all') {
-      filtered = filtered.filter((t) => t.category === filterCategory);
+      const category = categories.find(cat => cat.name === filterCategory);
+      if (category) {
+        filtered = filtered.filter((t) => t.category_id === category.id);
+      }
     }
 
     // Apply type filter
@@ -109,11 +114,13 @@ const TransactionsPage = () => {
     }
 
     return filtered;
-  }, [transactions, filterCategory, filterType, dateRange, sortKey, sortDirection]);
+  }, [transactions, filterCategory, filterType, dateRange, sortKey, sortDirection, categories]);
 
-  const handleDeleteTransaction = (id: string) => {
-    deleteTransaction(id);
-    showSuccess(t('transaction_deleted_success'));
+  const handleDeleteTransaction = async (id: string) => {
+    const success = await deleteTransaction(id);
+    if (success) {
+      showSuccess(t('transaction_deleted_success'));
+    }
   };
 
   const handleEditClick = (transaction: Transaction) => {
@@ -128,6 +135,11 @@ const TransactionsPage = () => {
       setSortKey(key);
       setSortDirection('asc');
     }
+  };
+
+  const getCategoryNameById = (categoryId: string) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.name : t('unknown_category');
   };
 
   return (
@@ -152,9 +164,9 @@ const TransactionsPage = () => {
                 <SelectValue placeholder={t('filter_by_category')} />
               </SelectTrigger>
               <SelectContent>
-                {uniqueCategories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category === 'all' ? t('all_categories') : category}
+                {uniqueCategoryNames.map((categoryName) => (
+                  <SelectItem key={categoryName} value={categoryName}>
+                    {categoryName === 'all' ? t('all_categories') : categoryName}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -243,10 +255,10 @@ const TransactionsPage = () => {
                       {sortKey === 'date' && (sortDirection === 'asc' ? <ArrowUp className="ml-1 h-3 w-3" /> : <ArrowDown className="ml-1 h-3 w-3" />)}
                     </div>
                   </TableHead>
-                  <TableHead className="cursor-pointer" onClick={() => handleSort('category')}>
+                  <TableHead className="cursor-pointer" onClick={() => handleSort('category_id')}>
                     <div className="flex items-center">
                       {t('category')}
-                      {sortKey === 'category' && (sortDirection === 'asc' ? <ArrowUp className="ml-1 h-3 w-3" /> : <ArrowDown className="ml-1 h-3 w-3" />)}
+                      {sortKey === 'category_id' && (sortDirection === 'asc' ? <ArrowUp className="ml-1 h-3 w-3" /> : <ArrowDown className="ml-1 h-3 w-3" />)}
                     </div>
                   </TableHead>
                   <TableHead className="cursor-pointer" onClick={() => handleSort('type')}>
@@ -270,7 +282,7 @@ const TransactionsPage = () => {
                 {filteredAndSortedTransactions.map((transaction) => (
                   <TableRow key={transaction.id}>
                     <TableCell>{format(transaction.date, 'PPP')}</TableCell>
-                    <TableCell>{transaction.category}</TableCell>
+                    <TableCell>{getCategoryNameById(transaction.category_id)}</TableCell>
                     <TableCell>
                       <Badge variant={transaction.type === 'income' ? 'default' : 'destructive'}>
                         {t(transaction.type)}

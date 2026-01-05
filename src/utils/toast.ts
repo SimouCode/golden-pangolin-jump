@@ -1,17 +1,34 @@
-import { toast } from "sonner";
+import { useToast } from '@/hooks/use-toast'; // Using shadcn/ui's useToast
 
 export const showSuccess = (message: string) => {
-  toast.success(message);
+  const { toast } = useToast();
+  toast({
+    title: "Success!",
+    description: message,
+    variant: "default",
+  });
 };
 
 export const showError = (message: string) => {
-  toast.error(message);
+  const { toast } = useToast();
+  toast({
+    title: "Error!",
+    description: message,
+    variant: "destructive",
+  });
 };
 
 export const showLoading = (message: string) => {
-  return toast.loading(message);
+  const { toast } = useToast();
+  const { id } = toast({
+    title: "Loading...",
+    description: message,
+    duration: 999999, // Long duration for loading
+  });
+  return id;
 };
 
 export const dismissToast = (toastId: string) => {
-  toast.dismiss(toastId);
+  const { dismiss } = useToast();
+  dismiss(toastId);
 };

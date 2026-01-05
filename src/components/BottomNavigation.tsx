@@ -3,7 +3,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Home, Repeat, BarChart, Target, Wallet, TrendingUp } from 'lucide-react'; // Import TrendingUp icon for Income
+import { Home, Repeat, BarChart, Target, Wallet, Settings } from 'lucide-react'; // Removed TrendingUp icon for Income, added Settings
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -13,10 +13,11 @@ const BottomNavigation = () => {
   const navItems = [
     { name: t('dashboard'), icon: Home, path: '/' },
     { name: t('transactions'), icon: Repeat, path: '/transactions' },
-    { name: t('income_tracking'), icon: TrendingUp, path: '/income' }, // Added Income link
+    // { name: t('income_tracking'), icon: TrendingUp, path: '/income' }, // Removed Income link
     { name: t('analytics'), icon: BarChart, path: '/analytics' },
     { name: t('goals'), icon: Target, path: '/goals' },
     { name: t('budgets'), icon: Wallet, path: '/budgets' },
+    { name: t('settings'), icon: Settings, path: '/settings' }, // Added Settings link
   ];
 
   return (

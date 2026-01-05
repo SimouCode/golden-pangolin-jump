@@ -15,8 +15,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { showSuccess, showError } from '@/utils/toast';
 import { Budget, useBudgets } from '@/contexts/BudgetContext';
-import { formatCurrency, getUniqueCategories } from '@/lib/utils';
-import { useTransactions } from '@/contexts/TransactionContext'; // Import useTransactions
+import { formatCurrency } from '@/lib/utils';
+import { useCategories } from '@/hooks/use-categories'; // Import useCategories
 
 interface EditBudgetDialogProps {
   isOpen: boolean;
@@ -26,47 +26,76 @@ interface EditBudgetDialogProps {
 
 const EditBudgetDialog: React.FC<EditBudgetDialogProps> = ({ isOpen, onClose, budget }) => {
   const { t } = useTranslation();
-  const { updateBudget, budgets } = useBudgets();
-  const { transactions } = useTransactions(); // Use transactions to get categories
+  const { updateBudget } = useBudgets();
+  const { categories, addCategory, isLoading: isLoadingCategories } = useCategories();
 
-  const [budgetName, setBudgetName] = useState<string>('');
-  const [category, setCategory] = useState<string>('');
-  const [amount, setAmount] = useState<string>('');
-  const [monthYear, setMonthYear] = useState<string>('');
-
-  const uniqueCategories = useMemo(() => {
-    return getUniqueCategories(transactions, budgets);
-  }, [transactions, budgets]);
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string>('');
+  const [newCategoryInput, setNewCategoryInput] = useState<string>('');
+  const [monthlyLimit, setMonthlyLimit] = useState<string>('');
+  const [month, setMonth] = useState<string>('');
+  const [year, setYear] = useState<string>('');
 
   useEffect(() => {
     if (budget) {
-      setBudgetName(budget.name);
-      setCategory(budget.category);
-      setAmount(budget.amount.toString());
-      setMonthYear(budget.monthYear);
+      const currentCategory = categories.find(cat => cat.id === budget.category_id);
+      setSelectedCategoryName(currentCategory?.name || '');
+      setMonthlyLimit(budget.monthly_limit.toString());
+      setMonth(budget.month.toString());
+      setYear(budget.year.toString());
     }
-  }, [budget]);
+  }, [budget, categories]);
 
-  const handleUpdateBudget = () => {
+  const availableCategories = useMemo(() => {
+    return categories.filter(cat => cat.type === 'expense'); // Budgets are typically for expenses
+  }, [categories]);
+
+  const handleUpdateBudget = async () => {
     if (!budget) return;
 
-    const parsedAmount = parseFloat(amount);
+    const parsedMonthlyLimit = parseFloat(monthlyLimit);
+    const parsedMonth = parseInt(month);
+    const parsedYear = parseInt(year);
 
-    if (!budgetName || !category || isNaN(parsedAmount) || parsedAmount <= 0 || !monthYear) {
+    if (!selectedCategoryName || isNaN(parsedMonthlyLimit) || parsedMonthlyLimit <= 0 || isNaN(parsedMonth) || isNaN(parsedYear)) {
       showError(t('budget_save_error_fields'));
       return;
     }
 
-    updateBudget({
-      ...budget,
-      name: budgetName,
-      category,
-      amount: parsedAmount,
-      monthYear,
+    let categoryId: string | undefined;
+    const existingCategory = availableCategories.find(cat => cat.name === selectedCategoryName);
+
+    if (existingCategory) {
+      categoryId = existingCategory.id;
+    } else if (newCategoryInput && newCategoryInput === selectedCategoryName) {
+      const addedCategory = await addCategory(newCategoryInput, 'expense');
+      if (addedCategory) {
+        categoryId = addedCategory.id;
+      } else {
+        showError(t('error_adding_category'));
+        return;
+      }
+    } else {
+      showError(t('error_invalid_category'));
+      return;
+    }
+
+    if (!categoryId) {
+      showError(t('error_invalid_category'));
+      return;
+    }
+
+    const updated = await updateBudget({
+      id: budget.id,
+      category_id: categoryId,
+      monthly_limit: parsedMonthlyLimit,
+      month: parsedMonth,
+      year: parsedYear,
+      spent: budget.spent, // Keep current spent amount
     });
 
-    showSuccess(t('budget_updated_success'));
-    onClose();
+    if (updated) {
+      onClose();
+    }
   };
 
   return (
@@ -77,59 +106,67 @@ const EditBudgetDialog: React.FC<EditBudgetDialogProps> = ({ isOpen, onClose, bu
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="budgetName">{t('budget_name')}</Label>
-            <Input
-              id="budgetName"
-              placeholder={t('budget_name_placeholder')}
-              value={budgetName}
-              onChange={(e) => setBudgetName(e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="category">{t('category')}</Label>
-            <Select value={category} onValueChange={setCategory}>
+            <Select
+              value={selectedCategoryName}
+              onValueChange={(value) => {
+                setSelectedCategoryName(value);
+                setNewCategoryInput('');
+              }}
+              disabled={isLoadingCategories}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={t('category_placeholder_budget')} />
               </SelectTrigger>
               <SelectContent>
-                {uniqueCategories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
+                {availableCategories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.name}>
+                    {cat.name}
                   </SelectItem>
                 ))}
-                {category && !uniqueCategories.includes(category) && (
-                  <SelectItem value={category}>{t('add_new_category')}: {category}</SelectItem>
-                )}
               </SelectContent>
             </Select>
             <Input
-              id="category-input"
-              placeholder={t('category_placeholder_budget')}
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              id="new-category-input"
+              placeholder={t('add_new_category')}
+              value={newCategoryInput}
+              onChange={(e) => {
+                setNewCategoryInput(e.target.value);
+                setSelectedCategoryName(e.target.value);
+              }}
               className="mt-2"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="amount">{t('budget_amount')}</Label>
+            <Label htmlFor="monthlyLimit">{t('budget_amount')}</Label>
             <Input
-              id="amount"
+              id="monthlyLimit"
               type="number"
               placeholder={formatCurrency(0, t('currency_locale'))}
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              value={monthlyLimit}
+              onChange={(e) => setMonthlyLimit(e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="monthYear">{t('month_year')}</Label>
+            <Label htmlFor="month">{t('month')}</Label>
             <Input
-              id="monthYear"
-              placeholder="YYYY-MM"
-              value={monthYear}
-              onChange={(e) => setMonthYear(e.target.value)}
+              id="month"
+              type="number"
+              placeholder="MM"
+              value={month}
+              onChange={(e) => setMonth(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="year">{t('year')}</Label>
+            <Input
+              id="year"
+              type="number"
+              placeholder="YYYY"
+              value={year}
+              onChange={(e) => setYear(e.target.value)}
             />
           </div>
         </div>

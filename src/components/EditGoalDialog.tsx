@@ -39,13 +39,13 @@ const EditGoalDialog: React.FC<EditGoalDialogProps> = ({ isOpen, onClose, goal }
   useEffect(() => {
     if (goal) {
       setGoalName(goal.name);
-      setTargetAmount(goal.targetAmount.toString());
-      setDueDate(goal.dueDate);
+      setTargetAmount(goal.target_amount.toString());
+      setDueDate(goal.deadline);
       setDescription(goal.description || '');
     }
   }, [goal]);
 
-  const handleUpdateGoal = () => {
+  const handleUpdateGoal = async () => {
     if (!goal) return;
 
     const parsedTargetAmount = parseFloat(targetAmount);
@@ -55,16 +55,18 @@ const EditGoalDialog: React.FC<EditGoalDialogProps> = ({ isOpen, onClose, goal }
       return;
     }
 
-    updateGoal({
-      ...goal,
+    const updated = await updateGoal({
+      id: goal.id,
       name: goalName,
-      targetAmount: parsedTargetAmount,
-      dueDate,
+      target_amount: parsedTargetAmount,
+      saved_amount: goal.saved_amount, // Keep current saved amount
+      deadline: dueDate,
       description,
     });
 
-    showSuccess(t('goal_updated_success'));
-    onClose();
+    if (updated) {
+      onClose();
+    }
   };
 
   return (

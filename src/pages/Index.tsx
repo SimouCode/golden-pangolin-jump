@@ -11,11 +11,10 @@ import MonthlySummaryChart from '@/components/MonthlySummaryChart';
 import SpendingCategoriesChart from '@/components/SpendingCategoriesChart';
 import FinancialSummaryCard from '@/components/FinancialSummaryCard';
 import SmartRecommendations from '@/components/SmartRecommendations';
-import CategoryBudgetProgressCard from '@/components/CategoryBudgetProgressCard'; // New import
+import CategoryBudgetProgressCard from '@/components/CategoryBudgetProgressCard';
 import { useTransactions } from '@/contexts/TransactionContext';
-import { useIncome } from '@/contexts/IncomeContext';
-import { useBudgets } from '@/contexts/BudgetContext';
 import { useGoals } from '@/contexts/GoalContext';
+import { useCategories } from '@/hooks/use-categories'; // Import useCategories
 import { format } from 'date-fns';
 import {
   Table,
@@ -29,27 +28,16 @@ import { Badge } from '@/components/ui/badge';
 import { cn, formatCurrency } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 
-// New component for Current Balance
+// Component for Current Balance
 const CurrentBalanceCard = () => {
   const { t } = useTranslation();
   const { transactions } = useTransactions();
-  const { incomeEntries } = useIncome();
 
-  const totalIncome = useMemo(() => {
-    const transactionIncome = transactions
-      .filter(t => t.type === 'income')
-      .reduce((sum, t) => sum + t.amount, 0);
-    const otherIncome = incomeEntries.reduce((sum, i) => sum + i.amount, 0);
-    return transactionIncome + otherIncome;
-  }, [transactions, incomeEntries]);
-
-  const totalExpenses = useMemo(() => {
-    return transactions
-      .filter(t => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0);
+  const currentBalance = useMemo(() => {
+    return transactions.reduce((sum, t) => {
+      return t.type === 'income' ? sum + t.amount : sum - t.amount;
+    }, 0);
   }, [transactions]);
-
-  const currentBalance = totalIncome - totalExpenses;
 
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 col-span-full lg:col-span-2">
@@ -65,12 +53,12 @@ const CurrentBalanceCard = () => {
   );
 };
 
-// New component for Goals Progress
+// Component for Goals Progress
 const GoalsProgressCard = () => {
   const { t } = useTranslation();
   const { goals } = useGoals();
 
-  const activeGoals = goals.filter(goal => goal.currentAmount < goal.targetAmount);
+  const activeGoals = goals.filter(goal => goal.saved_amount < goal.target_amount);
 
   if (activeGoals.length === 0) {
     return (
@@ -97,7 +85,7 @@ const GoalsProgressCard = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         {activeGoals.slice(0, 3).map(goal => { // Show top 3 goals
-          const progress = (goal.currentAmount / goal.targetAmount) * 100;
+          const progress = (goal.saved_amount / goal.target_amount) * 100;
           return (
             <div key={goal.id} className="space-y-1">
               <div className="flex justify-between text-sm">
@@ -106,7 +94,7 @@ const GoalsProgressCard = () => {
               </div>
               <Progress value={progress} className="h-2" />
               <p className="text-xs text-muted-foreground">
-                {formatCurrency(goal.currentAmount, t('currency_locale'))} / {formatCurrency(goal.targetAmount, t('currency_locale'))}
+                {formatCurrency(goal.saved_amount, t('currency_locale'))} / {formatCurrency(goal.target_amount, t('currency_locale'))}
               </p>
             </div>
           );
@@ -125,13 +113,13 @@ const GoalsProgressCard = () => {
 const Index = () => {
   const { t } = useTranslation();
   const { transactions } = useTransactions();
-  const { incomeEntries } = useIncome();
+  const { categories } = useCategories();
 
   // Calculate Monthly Summary Data for the current month
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
-  const monthlyTransactionIncome = transactions
+  const totalMonthlyIncome = transactions
     .filter(
       (t) =>
         t.type === 'income' &&
@@ -139,16 +127,6 @@ const Index = () => {
         t.date.getFullYear() === currentYear
     )
     .reduce((sum, t) => sum + t.amount, 0);
-
-  const monthlyOtherIncome = incomeEntries
-    .filter(
-      (i) =>
-        i.date.getMonth() === currentMonth &&
-        i.date.getFullYear() === currentYear
-    )
-    .reduce((sum, i) => sum + i.amount, 0);
-
-  const totalMonthlyIncome = monthlyTransactionIncome + monthlyOtherIncome;
 
   const monthlyExpenses = transactions
     .filter(
@@ -167,7 +145,8 @@ const Index = () => {
   const spendingCategoriesMap = transactions
     .filter((t) => t.type === 'expense')
     .reduce((acc, transaction) => {
-      acc[transaction.category] = (acc[transaction.category] || 0) + transaction.amount;
+      const categoryName = categories.find(cat => cat.id === transaction.category_id)?.name || t('unknown_category');
+      acc[categoryName] = (acc[categoryName] || 0) + transaction.amount;
       return acc;
     }, {} as Record<string, number>);
 
@@ -180,6 +159,11 @@ const Index = () => {
   const recentTransactions = transactions
     .sort((a, b) => b.date.getTime() - a.date.getTime()) // Sort by date descending
     .slice(0, 5); // Take the top 5
+
+  const getCategoryNameById = (categoryId: string) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category ? category.name : t('unknown_category');
+  };
 
   return (
     <Layout>
@@ -225,7 +209,7 @@ const Index = () => {
         <div className="grid gap-6 md:grid-cols-2">
           <MonthlySummaryChart data={monthlySummaryData} />
           <SpendingCategoriesChart data={spendingCategoriesData} />
-          <CategoryBudgetProgressCard /> {/* New Category Budget Progress Card */}
+          <CategoryBudgetProgressCard />
           <GoalsProgressCard />
         </div>
 
@@ -255,7 +239,7 @@ const Index = () => {
                     {recentTransactions.map((transaction) => (
                       <TableRow key={transaction.id}>
                         <TableCell>{format(transaction.date, 'MMM dd')}</TableCell>
-                        <TableCell>{transaction.category}</TableCell>
+                        <TableCell>{getCategoryNameById(transaction.category_id)}</TableCell>
                         <TableCell>
                           <Badge variant={transaction.type === 'income' ? 'default' : 'destructive'}>
                             {t(transaction.type)}

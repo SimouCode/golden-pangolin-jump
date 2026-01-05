@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
@@ -12,55 +12,82 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn, formatCurrency, getUniqueCategories } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { showSuccess, showError } from '@/utils/toast';
 import { useTransactions } from '@/contexts/TransactionContext';
-import { useBudgets } from '@/contexts/BudgetContext'; // Import useBudgets
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useCategories } from '@/hooks/use-categories'; // Import useCategories
 
 const AddTransactionPage = () => {
   const { t } = useTranslation();
-  const { addTransaction, transactions } = useTransactions();
-  const { budgets } = useBudgets(); // Use budgets to get categories
+  const { addTransaction } = useTransactions();
+  const { categories, addCategory, isLoading: isLoadingCategories } = useCategories();
   const navigate = useNavigate();
 
   const [amount, setAmount] = useState<string>('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
-  const [category, setCategory] = useState<string>('');
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string>('');
+  const [newCategoryInput, setNewCategoryInput] = useState<string>('');
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [note, setNote] = useState<string>('');
   const [location, setLocation] = useState<string>('');
 
-  const uniqueCategories = useMemo(() => {
-    return getUniqueCategories(transactions, budgets);
-  }, [transactions, budgets]);
+  const availableCategories = useMemo(() => {
+    return categories.filter(cat => cat.type === type);
+  }, [categories, type]);
 
-  const handleSaveTransaction = () => {
+  const handleSaveTransaction = async () => {
     const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || !category || !date) {
+    if (isNaN(parsedAmount) || !selectedCategoryName || !date) {
       showError(t('transaction_save_error_fields'));
       return;
     }
 
-    addTransaction({
+    let categoryId: string | undefined;
+    const existingCategory = availableCategories.find(cat => cat.name === selectedCategoryName);
+
+    if (existingCategory) {
+      categoryId = existingCategory.id;
+    } else if (newCategoryInput && newCategoryInput === selectedCategoryName) {
+      // If user typed a new category and selected it (or it's the only option)
+      const addedCategory = await addCategory(newCategoryInput, type);
+      if (addedCategory) {
+        categoryId = addedCategory.id;
+      } else {
+        showError(t('error_adding_category'));
+        return;
+      }
+    } else {
+      showError(t('error_invalid_category'));
+      return;
+    }
+
+    if (!categoryId) {
+      showError(t('error_invalid_category'));
+      return;
+    }
+
+    const transaction = await addTransaction({
       amount: parsedAmount,
       type,
-      category,
+      category_id: categoryId,
       date,
       note,
       location,
     });
 
-    showSuccess(t('transaction_saved_success'));
-    // Reset form
-    setAmount('');
-    setType('expense');
-    setCategory('');
-    setDate(new Date());
-    setNote('');
-    setLocation('');
-    navigate('/transactions');
+    if (transaction) {
+      // Reset form
+      setAmount('');
+      setType('expense');
+      setSelectedCategoryName('');
+      setNewCategoryInput('');
+      setDate(new Date());
+      setNote('');
+      setLocation('');
+      navigate('/transactions');
+    }
   };
 
   return (
@@ -88,7 +115,11 @@ const AddTransactionPage = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="type">{t('type')}</Label>
-                <Select value={type} onValueChange={(value: 'income' | 'expense') => setType(value)}>
+                <Select value={type} onValueChange={(value: 'income' | 'expense') => {
+                  setType(value);
+                  setSelectedCategoryName(''); // Reset category when type changes
+                  setNewCategoryInput('');
+                }}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder={t('type')} />
                   </SelectTrigger>
@@ -101,28 +132,33 @@ const AddTransactionPage = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="category">{t('category')}</Label>
-                <Select value={category} onValueChange={setCategory}>
+                <Select
+                  value={selectedCategoryName}
+                  onValueChange={(value) => {
+                    setSelectedCategoryName(value);
+                    setNewCategoryInput(''); // Clear new category input if existing is selected
+                  }}
+                  disabled={isLoadingCategories}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder={t('category_placeholder_transaction')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {uniqueCategories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
+                    {availableCategories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.name}>
+                        {cat.name}
                       </SelectItem>
                     ))}
-                    {/* Option to add a new category if not in list */}
-                    {category && !uniqueCategories.includes(category) && (
-                      <SelectItem value={category}>{t('add_new_category')}: {category}</SelectItem>
-                    )}
                   </SelectContent>
                 </Select>
-                {/* Allow typing a new category if not selected from dropdown */}
                 <Input
-                  id="category-input"
-                  placeholder={t('category_placeholder_transaction')}
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
+                  id="new-category-input"
+                  placeholder={t('add_new_category')}
+                  value={newCategoryInput}
+                  onChange={(e) => {
+                    setNewCategoryInput(e.target.value);
+                    setSelectedCategoryName(e.target.value); // Set selected category to new input
+                  }}
                   className="mt-2"
                 />
               </div>

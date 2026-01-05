@@ -35,43 +35,46 @@ const GoalsPage = () => {
 
   const [goalName, setGoalName] = useState<string>('');
   const [targetAmount, setTargetAmount] = useState<string>('');
-  const [currentAmount, setCurrentAmount] = useState<string>('0');
+  const [currentAmountInput, setCurrentAmountInput] = useState<string>('0'); // Renamed to avoid conflict
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [description, setDescription] = useState<string>('');
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
-  const [currentAmountInputs, setCurrentAmountInputs] = useState<Record<string, string>>({});
+  const [updateSavedAmountInputs, setUpdateSavedAmountInputs] = useState<Record<string, string>>({}); // Renamed
 
-  const handleAddGoal = () => {
+  const handleAddGoal = async () => {
     const parsedTargetAmount = parseFloat(targetAmount);
-    const parsedCurrentAmount = parseFloat(currentAmount);
+    const parsedCurrentAmount = parseFloat(currentAmountInput); // Use renamed state
 
     if (!goalName || isNaN(parsedTargetAmount) || parsedTargetAmount <= 0) {
       showError(t('goal_save_error_fields'));
       return;
     }
 
-    addGoal({
+    const newGoal = await addGoal({
       name: goalName,
-      targetAmount: parsedTargetAmount,
-      currentAmount: parsedCurrentAmount,
-      dueDate,
+      target_amount: parsedTargetAmount,
+      saved_amount: parsedCurrentAmount,
+      deadline: dueDate,
       description,
     });
 
-    showSuccess(t('goal_saved_success'));
-    // Reset form
-    setGoalName('');
-    setTargetAmount('');
-    setCurrentAmount('0');
-    setDueDate(undefined);
-    setDescription('');
+    if (newGoal) {
+      // Reset form
+      setGoalName('');
+      setTargetAmount('');
+      setCurrentAmountInput('0');
+      setDueDate(undefined);
+      setDescription('');
+    }
   };
 
-  const handleDeleteGoal = (id: string) => {
-    deleteGoal(id);
-    showSuccess(t('goal_deleted_success'));
+  const handleDeleteGoal = async (id: string) => {
+    const success = await deleteGoal(id);
+    if (success) {
+      showSuccess(t('goal_deleted_success'));
+    }
   };
 
   const handleEditClick = (goal: Goal) => {
@@ -79,24 +82,26 @@ const GoalsPage = () => {
     setIsEditDialogOpen(true);
   };
 
-  const handleCurrentAmountInputChange = (goalId: string, value: string) => {
-    setCurrentAmountInputs((prev) => ({ ...prev, [goalId]: value }));
+  const handleUpdateSavedAmountInputChange = (goalId: string, value: string) => {
+    setUpdateSavedAmountInputs((prev) => ({ ...prev, [goalId]: value }));
   };
 
-  const handleUpdateCurrentAmount = (goal: Goal) => {
-    const inputAmount = parseFloat(currentAmountInputs[goal.id] || '0');
+  const handleUpdateSavedAmount = async (goal: Goal) => {
+    const inputAmount = parseFloat(updateSavedAmountInputs[goal.id] || '0');
     if (isNaN(inputAmount) || inputAmount < 0) {
       showError(t('invalid_amount'));
       return;
     }
 
-    const updatedGoal: Goal = {
+    const updated = await updateGoal({
       ...goal,
-      currentAmount: inputAmount,
-    };
-    updateGoal(updatedGoal);
-    showSuccess(t('goal_current_amount_updated_success'));
-    setCurrentAmountInputs((prev) => ({ ...prev, [goal.id]: '' })); // Clear input after update
+      saved_amount: inputAmount,
+    });
+
+    if (updated) {
+      showSuccess(t('goal_current_amount_updated_success'));
+      setUpdateSavedAmountInputs((prev) => ({ ...prev, [goal.id]: '' })); // Clear input after update
+    }
   };
 
   return (
@@ -138,8 +143,8 @@ const GoalsPage = () => {
                   id="currentAmount"
                   type="number"
                   placeholder={formatCurrency(0, t('currency_locale'))}
-                  value={currentAmount}
-                  onChange={(e) => setCurrentAmount(e.target.value)}
+                  value={currentAmountInput}
+                  onChange={(e) => setCurrentAmountInput(e.target.value)}
                 />
               </div>
 
@@ -195,7 +200,7 @@ const GoalsPage = () => {
         ) : (
           <div className="grid gap-4">
             {goals.map((goal) => {
-              const progress = (goal.currentAmount / goal.targetAmount) * 100;
+              const progress = (goal.saved_amount / goal.target_amount) * 100;
               return (
                 <Card key={goal.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -229,14 +234,14 @@ const GoalsPage = () => {
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      {t('target')}: {formatCurrency(goal.targetAmount, t('currency_locale'))}
+                      {t('target')}: {formatCurrency(goal.target_amount, t('currency_locale'))}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {t('current')}: {formatCurrency(goal.currentAmount, t('currency_locale'))}
+                      {t('current')}: {formatCurrency(goal.saved_amount, t('currency_locale'))}
                     </p>
-                    {goal.dueDate && (
+                    {goal.deadline && (
                       <p className="text-sm text-muted-foreground">
-                        {t('due_date')}: {format(goal.dueDate, 'PPP')}
+                        {t('due_date')}: {format(goal.deadline, 'PPP')}
                       </p>
                     )}
                     {goal.description && (
@@ -255,11 +260,11 @@ const GoalsPage = () => {
                           id={`current-amount-${goal.id}`}
                           type="number"
                           placeholder={formatCurrency(0, t('currency_locale'))}
-                          value={currentAmountInputs[goal.id] || ''}
-                          onChange={(e) => handleCurrentAmountInputChange(goal.id, e.target.value)}
+                          value={updateSavedAmountInputs[goal.id] || ''}
+                          onChange={(e) => handleUpdateSavedAmountInputChange(goal.id, e.target.value)}
                         />
                       </div>
-                      <Button onClick={() => handleUpdateCurrentAmount(goal)}>{t('update')}</Button>
+                      <Button onClick={() => handleUpdateSavedAmount(goal)}>{t('update')}</Button>
                     </div>
                   </CardContent>
                 </Card>

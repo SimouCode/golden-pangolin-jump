@@ -6,6 +6,8 @@ import Header from './Header';
 import BottomNavigation from './BottomNavigation';
 import Sidebar from './Sidebar';
 import { MadeWithDyad } from './made-with-dyad';
+import { useSession } from '@/contexts/SessionContext'; // Import useSession
+import { useLocation } from 'react-router-dom';
 
 interface LayoutProps {
   children: ReactNode;
@@ -13,6 +15,13 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const { direction } = useLanguage();
+  const { session, isLoading } = useSession();
+  const location = useLocation();
+
+  // Don't render layout components if on login page or still loading session
+  if (isLoading || location.pathname === '/login') {
+    return <>{children}</>;
+  }
 
   return (
     <div dir={direction} className="min-h-screen flex">

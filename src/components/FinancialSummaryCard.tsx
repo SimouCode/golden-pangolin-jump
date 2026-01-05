@@ -4,7 +4,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTransactions } from '@/contexts/TransactionContext';
-import { useIncome } from '@/contexts/IncomeContext'; // Import useIncome
 import { format } from 'date-fns';
 import { ArrowDown, ArrowUp, Wallet } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
@@ -12,12 +11,11 @@ import { cn, formatCurrency } from '@/lib/utils';
 const FinancialSummaryCard = () => {
   const { t } = useTranslation();
   const { transactions } = useTransactions();
-  const { incomeEntries } = useIncome(); // Use incomeEntries
 
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
 
-  const monthlyIncomeTransactions = transactions
+  const totalMonthlyIncome = transactions
     .filter(
       (t) =>
         t.type === 'income' &&
@@ -25,16 +23,6 @@ const FinancialSummaryCard = () => {
         t.date.getFullYear() === currentYear
     )
     .reduce((sum, t) => sum + t.amount, 0);
-
-  const monthlyOtherIncome = incomeEntries
-    .filter(
-      (i) =>
-        i.date.getMonth() === currentMonth &&
-        i.date.getFullYear() === currentYear
-    )
-    .reduce((sum, i) => sum + i.amount, 0);
-
-  const totalMonthlyIncome = monthlyIncomeTransactions + monthlyOtherIncome;
 
   const monthlyExpenses = transactions
     .filter(

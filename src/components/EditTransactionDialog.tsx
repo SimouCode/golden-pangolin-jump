@@ -18,10 +18,10 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
-import { cn, formatCurrency, getUniqueCategories } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { showSuccess, showError } from '@/utils/toast';
 import { Transaction, useTransactions } from '@/contexts/TransactionContext';
-import { useBudgets } from '@/contexts/BudgetContext'; // Import useBudgets
+import { useCategories } from '@/hooks/use-categories'; // Import useCategories
 
 interface EditTransactionDialogProps {
   isOpen: boolean;
@@ -31,52 +31,78 @@ interface EditTransactionDialogProps {
 
 const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ isOpen, onClose, transaction }) => {
   const { t } = useTranslation();
-  const { updateTransaction, transactions } = useTransactions();
-  const { budgets } = useBudgets(); // Use budgets to get categories
+  const { updateTransaction } = useTransactions();
+  const { categories, addCategory, isLoading: isLoadingCategories } = useCategories();
 
   const [amount, setAmount] = useState<string>('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
-  const [category, setCategory] = useState<string>('');
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string>('');
+  const [newCategoryInput, setNewCategoryInput] = useState<string>('');
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [note, setNote] = useState<string>('');
   const [location, setLocation] = useState<string>('');
-
-  const uniqueCategories = useMemo(() => {
-    return getUniqueCategories(transactions, budgets);
-  }, [transactions, budgets]);
 
   useEffect(() => {
     if (transaction) {
       setAmount(transaction.amount.toString());
       setType(transaction.type);
-      setCategory(transaction.category);
+      const currentCategory = categories.find(cat => cat.id === transaction.category_id);
+      setSelectedCategoryName(currentCategory?.name || '');
       setDate(transaction.date);
       setNote(transaction.note || '');
       setLocation(transaction.location || '');
     }
-  }, [transaction]);
+  }, [transaction, categories]);
 
-  const handleUpdateTransaction = () => {
+  const availableCategories = useMemo(() => {
+    return categories.filter(cat => cat.type === type);
+  }, [categories, type]);
+
+  const handleUpdateTransaction = async () => {
     if (!transaction) return;
 
     const parsedAmount = parseFloat(amount);
-    if (isNaN(parsedAmount) || !category || !date) {
+    if (isNaN(parsedAmount) || !selectedCategoryName || !date) {
       showError(t('transaction_save_error_fields'));
       return;
     }
 
-    updateTransaction({
+    let categoryId: string | undefined;
+    const existingCategory = availableCategories.find(cat => cat.name === selectedCategoryName);
+
+    if (existingCategory) {
+      categoryId = existingCategory.id;
+    } else if (newCategoryInput && newCategoryInput === selectedCategoryName) {
+      const addedCategory = await addCategory(newCategoryInput, type);
+      if (addedCategory) {
+        categoryId = addedCategory.id;
+      } else {
+        showError(t('error_adding_category'));
+        return;
+      }
+    } else {
+      showError(t('error_invalid_category'));
+      return;
+    }
+
+    if (!categoryId) {
+      showError(t('error_invalid_category'));
+      return;
+    }
+
+    const updated = await updateTransaction({
       ...transaction,
       amount: parsedAmount,
       type,
-      category,
+      category_id: categoryId,
       date,
       note,
       location,
     });
 
-    showSuccess(t('transaction_updated_success'));
-    onClose();
+    if (updated) {
+      onClose();
+    }
   };
 
   return (
@@ -99,7 +125,11 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ isOpen, o
 
           <div className="space-y-2">
             <Label htmlFor="type">{t('type')}</Label>
-            <Select value={type} onValueChange={(value: 'income' | 'expense') => setType(value)}>
+            <Select value={type} onValueChange={(value: 'income' | 'expense') => {
+              setType(value);
+              setSelectedCategoryName(''); // Reset category when type changes
+              setNewCategoryInput('');
+            }}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={t('type')} />
               </SelectTrigger>
@@ -112,26 +142,33 @@ const EditTransactionDialog: React.FC<EditTransactionDialogProps> = ({ isOpen, o
 
           <div className="space-y-2">
             <Label htmlFor="category">{t('category')}</Label>
-            <Select value={category} onValueChange={setCategory}>
+            <Select
+              value={selectedCategoryName}
+              onValueChange={(value) => {
+                setSelectedCategoryName(value);
+                setNewCategoryInput('');
+              }}
+              disabled={isLoadingCategories}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={t('category_placeholder_transaction')} />
               </SelectTrigger>
               <SelectContent>
-                {uniqueCategories.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
+                {availableCategories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.name}>
+                    {cat.name}
                   </SelectItem>
                 ))}
-                {category && !uniqueCategories.includes(category) && (
-                  <SelectItem value={category}>{t('add_new_category')}: {category}</SelectItem>
-                )}
               </SelectContent>
             </Select>
             <Input
-              id="category-input"
-              placeholder={t('category_placeholder_transaction')}
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              id="new-category-input"
+              placeholder={t('add_new_category')}
+              value={newCategoryInput}
+              onChange={(e) => {
+                setNewCategoryInput(e.target.value);
+                setSelectedCategoryName(e.target.value);
+              }}
               className="mt-2"
             />
           </div>
